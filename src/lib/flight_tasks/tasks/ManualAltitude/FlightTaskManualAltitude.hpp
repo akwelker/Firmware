@@ -89,7 +89,15 @@ private:
 	bool _isYawInput();
 	void _unlockYaw();
 	void _lockYaw();
+
+	/**
+	 * Filter between stick input and yaw setpoint
+	 *
+	 * @param yawspeed_target yaw setpoint desired by the stick
+	 * @return filtered value from independent filter state
+	 */
 	float _applyYawspeedFilter(float yawspeed_target);
+	float _yawspeed_filter_state{};
 
 	/**
 	 * Terrain following.
@@ -131,6 +139,4 @@ private:
 	 * _dist_to_ground_lock.
 	 */
 	float _dist_to_ground_lock = NAN;
-
-	float _yawspeed_filter_state{};
 };
