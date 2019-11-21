@@ -90,7 +90,6 @@
 #define PX4IO_P_CONFIG_PROTOCOL_VERSION		0	/* PX4IO_PROTOCOL_VERSION */
 #define PX4IO_P_CONFIG_HARDWARE_VERSION		1	/* magic numbers TBD */
 #define PX4IO_P_CONFIG_BOOTLOADER_VERSION	2	/* get this how? */
-#define PX4IO_P_CONFIG_MAX_TRANSFER			3	/* maximum I2C transfer size */
 #define PX4IO_P_CONFIG_CONTROL_COUNT		4	/* hardcoded max control count supported */
 #define PX4IO_P_CONFIG_ACTUATOR_COUNT		5	/* hardcoded max actuator output count */
 #define PX4IO_P_CONFIG_RC_INPUT_COUNT		6	/* hardcoded max R/C input count supported */
