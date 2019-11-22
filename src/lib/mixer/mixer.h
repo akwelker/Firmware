@@ -519,7 +519,8 @@ public:
 	AllocatedActuatorMixer(ControlCallback control_cb,
 			       uintptr_t cb_handle,
 			       uint8_t index);
-	~AllocatedActuatorMixer();
+
+	~AllocatedActuatorMixer() = default;
 
 	/**
 	 * Factory method with full external configuration.

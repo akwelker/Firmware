@@ -62,9 +62,6 @@ AllocatedActuatorMixer::AllocatedActuatorMixer(ControlCallback control_cb,
 	}
 }
 
-AllocatedActuatorMixer::~AllocatedActuatorMixer()
-{}
-
 unsigned AllocatedActuatorMixer::set_trim(float trim)
 {
 	return 1;
