@@ -97,7 +97,6 @@ private:
 	 * @return filtered value from independent filter state
 	 */
 	float _applyYawspeedFilter(float yawspeed_target);
-	float _yawspeed_filter_state{};
 
 	/**
 	 * Terrain following.
@@ -126,6 +125,7 @@ private:
 
 	uORB::SubscriptionData<home_position_s> _sub_home_position{ORB_ID(home_position)};
 
+	float _yawspeed_filter_state{}; /**< state of low-pass filter in rad/s */
 	uint8_t _reset_counter = 0; /**< counter for estimator resets in z-direction */
 	float _max_speed_up = 10.0f;
 	float _min_speed_down = 1.0f;

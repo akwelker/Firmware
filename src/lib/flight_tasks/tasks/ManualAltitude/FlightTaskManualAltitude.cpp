@@ -96,7 +96,7 @@ void FlightTaskManualAltitude::_scaleSticks()
 
 float FlightTaskManualAltitude::_applyYawspeedFilter(float yawspeed_target)
 {
-	const float den = math::max(_param_mpc_man_y_tau.get() + _deltatime, 0.001f);
+	const float den = math::max(_param_mpc_man_y_tau.get() + _deltatime, 0.01f);
 	const float alpha = _deltatime / den;
 	_yawspeed_filter_state = (1.f - alpha) * _yawspeed_filter_state + alpha * yawspeed_target;
 	return _yawspeed_filter_state;
