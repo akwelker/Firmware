@@ -5,6 +5,8 @@
 # NOTE: Script variables are declared/initialized/unset in the rcS script.
 #
 
+top once
+
 #
 # Fixed wing setup.
 #

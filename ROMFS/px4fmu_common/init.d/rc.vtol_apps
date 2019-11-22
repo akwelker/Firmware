@@ -8,24 +8,32 @@
 ###############################################################################
 #                       Begin Estimator group selection                       #
 ###############################################################################
-
+top once
 ekf2 start
 
 ###############################################################################
 #                        End Estimator group selection                        #
 ###############################################################################
 
-
+top once
 vtol_att_control start
+top once
 mc_rate_control start
+top once
 mc_att_control start
+top once
 mc_pos_control start
+top once
 fw_att_control start
+top once
 fw_pos_control_l1 start
+top once
 airspeed_selector start
+top once
 
 #
 # Start Land Detector
 # Multicopter for now until we have something for VTOL
 #
 land_detector start vtol
+top once
