@@ -46,10 +46,11 @@
  * This is used to retrieve pre-computed control effectiveness matrix
  *
  * @min 0
- * @max 2
+ * @max 3
  * @value 0 Multirotor
  * @value 1 Standard VTOL (WIP)
  * @value 2 Tiltrotor VTOL (WIP)
+ * @value 3 Continuous Tiltrotor VTOL (WIP)
  * @group Control Allocation
  */
 PARAM_DEFINE_INT32(CA_AIRFRAME, 0);
@@ -312,3 +313,39 @@ PARAM_DEFINE_FLOAT(CA_ACT14_MAX, 0.0);
  * @group Control Allocation
  */
 PARAM_DEFINE_FLOAT(CA_ACT15_MAX, 0.0);
+
+/**
+ * Planform area of the vehicle's wing
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_WING_AREA, 0.0)
+
+/**
+ * Mean chord length of the vehicle's wing
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_MEAN_CHORD_LEN, 0.0)
+
+/**
+ * Nondimensional aerodynamic moment coefficient in the body frame x axis
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_AERO_L_MOMENT_COEF, 0.0)
+
+/**
+ * Nondimensional aerodynamic moment coefficient in the body frame y axis
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_AERO_M_MOMENT_COEF, 0.0)
+
+/**
+ * Nondimensional aerodynamic moment coefficient in the body frame z axis
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_AERO_N_MOMENT_COEF, 0.0)
+

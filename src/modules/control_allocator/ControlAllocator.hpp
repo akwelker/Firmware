@@ -45,6 +45,7 @@
 #include <ActuatorEffectivenessMultirotor.hpp>
 #include <ActuatorEffectivenessStandardVTOL.hpp>
 #include <ActuatorEffectivenessTiltrotorVTOL.hpp>
+#include <ActuatorEffectivenessContinuousTiltrotorVTOL.hpp>
 
 #include <ControlAllocation.hpp>
 #include <ControlAllocationPseudoInverse.hpp>
@@ -61,6 +62,7 @@
 #include <uORB/SubscriptionCallback.hpp>
 #include <uORB/topics/actuator_controls.h>
 #include <uORB/topics/airspeed.h>
+#include <uORB/topics/sensor_baro.h>
 #include <uORB/topics/battery_status.h>
 #include <uORB/topics/control_allocator_status.h>
 #include <uORB/topics/parameter_update.h>
@@ -127,6 +129,7 @@ private:
 		MULTIROTOR = 0,
 		STANDARD_VTOL = 1,
 		TILTROTOR_VTOL = 2,
+		CONTINUOUS_TILTROTOR_VTOL = 3
 	};
 
 	EffectivenessSource _effectiveness_source_id{EffectivenessSource::NONE};
@@ -148,6 +151,7 @@ private:
 
 	uORB::Subscription _battery_status_sub{ORB_ID(battery_status)};			/**< battery status subscription */
 	uORB::Subscription _airspeed_sub{ORB_ID(airspeed)};				/**< airspeed subscription */
+	uORB::Subscription _sensor_baro_sub{ORB_ID(sensor_baro)};		/**< sensor baro subscription .*/
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};
 
 	matrix::Vector3f _torque_sp;
@@ -197,7 +201,12 @@ private:
 		(ParamFloat<px4::params::CA_ACT12_MAX>) _param_ca_act12_max,
 		(ParamFloat<px4::params::CA_ACT13_MAX>) _param_ca_act13_max,
 		(ParamFloat<px4::params::CA_ACT14_MAX>) _param_ca_act14_max,
-		(ParamFloat<px4::params::CA_ACT15_MAX>) _param_ca_act15_max
+		(ParamFloat<px4::params::CA_ACT15_MAX>) _param_ca_act15_max,
+		(ParamFloat<px4::params::CA_WING_AREA>) _param_ca_wing_area,
+		(ParamFloat<px4::params::CA_MEAN_CHORD_LEN>) _param_ca_mean_chord_len,
+		(ParamFloat<px4::params::CA_AERO_L_MOMENT_COEF>) _param_ca_aero_l_moment_coef,
+		(ParamFloat<px4::params::CA_AERO_M_MOMENT_COEF>) _param_ca_aero_m_moment_coef,
+		(ParamFloat<px4::params::CA_AERO_N_MOMENT_COEF>) _param_ca_aero_n_moment_coef
 	)
 
 };

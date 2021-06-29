@@ -189,6 +189,7 @@ rtps:
     send: true
   - msg: vehicle_attitude_setpoint
     id: 88
+    receive: true
   - msg: vehicle_command
     id: 89
     receive: true
@@ -217,6 +218,7 @@ rtps:
     id: 99
     send: true
   - msg: vehicle_rates_setpoint
+    receive: true
     id: 100
   - msg: vehicle_roi
     id: 101

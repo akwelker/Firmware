@@ -209,6 +209,10 @@ ControlAllocator::update_effectiveness_source()
 			tmp = new ActuatorEffectivenessTiltrotorVTOL();
 			break;
 
+		case EffectivenessSource::CONTINUOUS_TILTROTOR_VTOL:
+			tmp = new ActuatorEffectivenessContinuousTiltrotorVTOL();
+			break;
+
 		default:
 			PX4_ERR("Unknown airframe");
 			break;
@@ -296,6 +300,8 @@ ControlAllocator::Run()
 	bool do_update = false;
 	vehicle_torque_setpoint_s vehicle_torque_setpoint;
 	vehicle_thrust_setpoint_s vehicle_thrust_setpoint;
+	airspeed_s airspeed;
+	sensor_baro_s sensor_baro;
 
 	// Run allocator on torque changes
 	if (_vehicle_torque_setpoint_sub.update(&vehicle_torque_setpoint)) {
@@ -315,6 +321,13 @@ ControlAllocator::Run()
 			do_update = true;
 			_timestamp_sample = vehicle_thrust_setpoint.timestamp_sample;
 		}
+	}
+
+	// Also run allocator when airspeed changes
+	if (_airspeed_sub.update(&airspeed)) {
+		_actuator_effectiveness->setPressure(sensor_baro.pressure);
+		_actuator_effectiveness->setAirspeed(airspeed.true_airspeed_m_s);
+		do_update = true;
 	}
 
 	if (do_update) {
@@ -516,6 +529,10 @@ int ControlAllocator::print_status()
 
 	case EffectivenessSource::TILTROTOR_VTOL:
 		PX4_INFO("EffectivenessSource: Tiltrotor VTOL");
+		break;
+
+	case EffectivenessSource::TILTROTOR_VTOL:
+		PX4_INFO("EffectivenessSource: Continuous Tiltrotor VTOL");
 		break;
 	}
 

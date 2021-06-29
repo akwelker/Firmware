@@ -59,7 +59,8 @@ public:
 		HOVER_FLIGHT = 0,
 		FORWARD_FLIGHT = 1,
 		TRANSITION_HF_TO_FF = 2,
-		TRANSITION_FF_TO_HF = 3
+		TRANSITION_FF_TO_HF = 3,
+		COMBINED_HF_AND_FF = 4
 	};
 
 	/**
@@ -70,6 +71,26 @@ public:
 	virtual void setFlightPhase(const FlightPhase &flight_phase)
 	{
 		_flight_phase = flight_phase;
+	}
+
+	/**
+	 * Sets the current airspeed
+	 *
+	 * @param true_airspeed aircraft's true airspeed
+	 */
+	virtual void setAirspeed(const float true_airspeed)
+	{
+		_true_airspeed = true_airspeed;
+	}
+
+	/**
+	 * Sets the current pressure
+	 *
+	 * @param pressure air pressure
+	 */
+	virtual void setPressure(const float pressure)
+	{
+		_pressure = pressure;
 	}
 
 	/**
@@ -104,7 +125,20 @@ public:
 	 */
 	virtual int numActuators() const = 0;
 
+	typedef struct {
+		float position_x;
+		float position_y;
+		float position_z;
+		float axis_x;
+		float axis_y;
+		float axis_z;
+		float thrust_coef;
+		float moment_ratio;
+	} RotorGeometry;
+
 protected:
 	matrix::Vector<float, NUM_ACTUATORS> _trim;			///< Actuator trim
 	FlightPhase _flight_phase{FlightPhase::HOVER_FLIGHT};		///< Current flight phase
+	float _true_airspeed;
+	float _pressure;
 };
