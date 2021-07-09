@@ -50,7 +50,7 @@
  * @value 0 Multirotor
  * @value 1 Standard VTOL (WIP)
  * @value 2 Tiltrotor VTOL (WIP)
- * @value 3 Continuous Tiltrotor VTOL (WIP)
+ * @value 3 Tiltrotor VTOL Combined Modes (WIP)
  * @group Control Allocation
  */
 PARAM_DEFINE_INT32(CA_AIRFRAME, 0);
@@ -60,8 +60,9 @@ PARAM_DEFINE_INT32(CA_AIRFRAME, 0);
  *
  * @value 0 Pseudo-inverse with output clipping (default)
  * @value 1 Pseudo-inverse with sequential desaturation technique
+ * @value 2 Pseudo-inverse with output clipping modified for Tiltrotor using combined modes
  * @min 0
- * @max 1
+ * @max 2
  * @group Control Allocation
  */
 PARAM_DEFINE_INT32(CA_METHOD, 0);
@@ -313,39 +314,3 @@ PARAM_DEFINE_FLOAT(CA_ACT14_MAX, 0.0);
  * @group Control Allocation
  */
 PARAM_DEFINE_FLOAT(CA_ACT15_MAX, 0.0);
-
-/**
- * Planform area of the vehicle's wing
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_WING_AREA, 0.0)
-
-/**
- * Mean chord length of the vehicle's wing
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_MEAN_CHORD_LEN, 0.0)
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame x axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_L_MOMENT_COEF, 0.0)
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame y axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_M_MOMENT_COEF, 0.0)
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame z axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_N_MOMENT_COEF, 0.0)
-

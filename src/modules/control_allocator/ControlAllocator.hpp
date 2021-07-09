@@ -45,11 +45,12 @@
 #include <ActuatorEffectivenessMultirotor.hpp>
 #include <ActuatorEffectivenessStandardVTOL.hpp>
 #include <ActuatorEffectivenessTiltrotorVTOL.hpp>
-#include <ActuatorEffectivenessContinuousTiltrotorVTOL.hpp>
+#include <ActuatorEffectivenessTiltrotorVTOLCombinedModes.hpp>
 
 #include <ControlAllocation.hpp>
 #include <ControlAllocationPseudoInverse.hpp>
 #include <ControlAllocationSequentialDesaturation.hpp>
+#include <ControlAllocationPseudoInverseTiltrotorVTOLCombinedModes.hpp>
 
 #include <lib/matrix/matrix/math.hpp>
 #include <lib/perf/perf_counter.h>
@@ -119,6 +120,7 @@ private:
 		NONE = -1,
 		PSEUDO_INVERSE = 0,
 		SEQUENTIAL_DESATURATION = 1,
+		PSEUDO_INVERSE_TILTROTOR_COMBINED_MODES = 2
 	};
 
 	AllocationMethod _allocation_method_id{AllocationMethod::NONE};
@@ -129,7 +131,7 @@ private:
 		MULTIROTOR = 0,
 		STANDARD_VTOL = 1,
 		TILTROTOR_VTOL = 2,
-		CONTINUOUS_TILTROTOR_VTOL = 3
+		TILTROTOR_VTOL_COMBINED_MODES = 3
 	};
 
 	EffectivenessSource _effectiveness_source_id{EffectivenessSource::NONE};
@@ -201,12 +203,7 @@ private:
 		(ParamFloat<px4::params::CA_ACT12_MAX>) _param_ca_act12_max,
 		(ParamFloat<px4::params::CA_ACT13_MAX>) _param_ca_act13_max,
 		(ParamFloat<px4::params::CA_ACT14_MAX>) _param_ca_act14_max,
-		(ParamFloat<px4::params::CA_ACT15_MAX>) _param_ca_act15_max,
-		(ParamFloat<px4::params::CA_WING_AREA>) _param_ca_wing_area,
-		(ParamFloat<px4::params::CA_MEAN_CHORD_LEN>) _param_ca_mean_chord_len,
-		(ParamFloat<px4::params::CA_AERO_L_MOMENT_COEF>) _param_ca_aero_l_moment_coef,
-		(ParamFloat<px4::params::CA_AERO_M_MOMENT_COEF>) _param_ca_aero_m_moment_coef,
-		(ParamFloat<px4::params::CA_AERO_N_MOMENT_COEF>) _param_ca_aero_n_moment_coef
+		(ParamFloat<px4::params::CA_ACT15_MAX>) _param_ca_act15_max
 	)
 
 };

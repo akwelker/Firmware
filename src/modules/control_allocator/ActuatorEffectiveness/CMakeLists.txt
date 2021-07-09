@@ -39,6 +39,8 @@ px4_add_library(ActuatorEffectiveness
 	ActuatorEffectivenessStandardVTOL.hpp
 	ActuatorEffectivenessTiltrotorVTOL.cpp
 	ActuatorEffectivenessTiltrotorVTOL.hpp
+	ActuatorEffectivenessTiltrotorVTOLCombinedModes.cpp
+	ActuatorEffectivenessTiltrotorVTOLCombinedModes.hpp
 )
 
 target_compile_options(ActuatorEffectiveness PRIVATE ${MAX_CUSTOM_OPT_LEVEL})

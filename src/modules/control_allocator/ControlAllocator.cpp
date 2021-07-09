@@ -160,6 +160,10 @@ ControlAllocator::update_allocation_method()
 			tmp = new ControlAllocationSequentialDesaturation();
 			break;
 
+		case AllocationMethod::PSEUDO_INVERSE_TILTROTOR_COMBINED_MODES:
+			tmp = new ControlAllocationPseudoInverseTiltrotorVTOLCombinedModes();
+			break;
+
 		default:
 			PX4_ERR("Unknown allocation method");
 			break;
@@ -209,8 +213,8 @@ ControlAllocator::update_effectiveness_source()
 			tmp = new ActuatorEffectivenessTiltrotorVTOL();
 			break;
 
-		case EffectivenessSource::CONTINUOUS_TILTROTOR_VTOL:
-			tmp = new ActuatorEffectivenessContinuousTiltrotorVTOL();
+		case EffectivenessSource::TILTROTOR_VTOL_COMBINED_MODES:
+			tmp = new ActuatorEffectivenessTiltrotorVTOLCombinedModes();
 			break;
 
 		default:
@@ -323,10 +327,13 @@ ControlAllocator::Run()
 		}
 	}
 
-	// Also run allocator when airspeed changes
+	// Also run allocator when airspeed changes or when pressure changes
 	if (_airspeed_sub.update(&airspeed)) {
-		_actuator_effectiveness->setPressure(sensor_baro.pressure);
 		_actuator_effectiveness->setAirspeed(airspeed.true_airspeed_m_s);
+		do_update = true;
+	}
+	if (_sensor_baro_sub.update(&sensor_baro)) {
+		_actuator_effectiveness->setPressure(sensor_baro.pressure);
 		do_update = true;
 	}
 
@@ -367,11 +374,23 @@ ControlAllocator::update_effectiveness_matrix_if_needed()
 	matrix::Matrix<float, NUM_AXES, NUM_ACTUATORS> effectiveness;
 
 	if (_actuator_effectiveness->getEffectivenessMatrix(effectiveness)) {
+		//debug
+		// PX4_INFO("effectiveness matrix");
+		// for(int i = 0; i < NUM_AXES; ++i)
+		// 	PX4_INFO("\t%d: %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
+		// 		i, (double) effectiveness(i, 0), (double) effectiveness(i, 1), (double) effectiveness(i, 2), (double) effectiveness(i, 3),
+		// 		(double) effectiveness(i, 4), (double) effectiveness(i, 5), (double) effectiveness(i, 6), (double) effectiveness(i, 7),
+		// 		(double) effectiveness(i, 8), (double) effectiveness(i, 9), (double) effectiveness(i, 10), (double) effectiveness(i, 11),
+		// 		(double) effectiveness(i, 12), (double) effectiveness(i, 13), (double) effectiveness(i, 14), (double) effectiveness(i, 15));
 		const matrix::Vector<float, NUM_ACTUATORS> &trim = _actuator_effectiveness->getActuatorTrim();
 
 		// Set 0 effectiveness for actuators that are disabled (act_min >= act_max)
 		matrix::Vector<float, NUM_ACTUATORS> actuator_max = _control_allocation->getActuatorMax();
 		matrix::Vector<float, NUM_ACTUATORS> actuator_min = _control_allocation->getActuatorMin();
+		// debug
+		// PX4_INFO("actuator trim");
+		// PX4_INFO("\t%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
+		// 	(double) trim(0), (double) trim(1), (double) trim(2), (double) trim(3), (double) trim(4), (double) trim(5), (double) trim(6), (double) trim(7), (double) trim(8), (double) trim(9), (double) trim(10), (double) trim(11), (double) trim(12), (double) trim(13), (double) trim(14), (double) trim(15));
 
 		for (size_t j = 0; j < NUM_ACTUATORS; j++) {
 			if (actuator_min(j) >= actuator_max(j)) {
@@ -511,6 +530,10 @@ int ControlAllocator::print_status()
 	case AllocationMethod::SEQUENTIAL_DESATURATION:
 		PX4_INFO("Method: Sequential desaturation");
 		break;
+
+	case AllocationMethod::PSEUDO_INVERSE_TILTROTOR_COMBINED_MODES:
+		PX4_INFO("Method: Pseudo-inverse modified for Tiltrotor in combined modes");
+		break;
 	}
 
 	// Print current airframe
@@ -531,8 +554,8 @@ int ControlAllocator::print_status()
 		PX4_INFO("EffectivenessSource: Tiltrotor VTOL");
 		break;
 
-	case EffectivenessSource::TILTROTOR_VTOL:
-		PX4_INFO("EffectivenessSource: Continuous Tiltrotor VTOL");
+	case EffectivenessSource::TILTROTOR_VTOL_COMBINED_MODES:
+		PX4_INFO("EffectivenessSource: Combined Modes Tiltrotor VTOL");
 		break;
 	}
 
