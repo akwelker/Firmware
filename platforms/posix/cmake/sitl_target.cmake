@@ -127,6 +127,7 @@ set(models
 	solo
 	standard_vtol
 	standard_vtol_drop
+	convergence_ctrlalloc
 	tailsitter
 	techpod
 	tiltrotor

@@ -1,0 +1,103 @@
+#!/bin/sh
+#
+# @name Convergence with Control Allocation
+#
+# @type VTOL Tiltrotor
+# @class VTOL
+#
+# @output MAIN1 Motor right
+# @output MAIN2 Motor left
+# @output MAIN3 Motor back
+# @output MAIN4 empty
+# @output MAIN5 Tilt servo right
+# @output MAIN6 Tilt servo left
+# @output MAIN7 Elevon right
+# @output MAIN8 Elevon left
+#
+# @maintainer Mason Peterson <mbpeterson70@gmail.com>
+# @board px4_fmu-v2 exclude
+# @board bitcraze_crazyflie exclude
+
+. ${R}etc/init.d/rc.ctrlalloc
+. ${R}etc/init.d/rc.vtol_defaults
+
+set VEHICLE_TYPE vtol_combmodes
+set MAV_TYPE 21
+
+set MIXER direct
+set PWM_OUT 123
+
+set MIXER_AUX direct_aux
+set PWM_AUX_OUT 123
+
+param set-default MPC_USE_HTE 0
+param set-default MPC_THR_HOVER 0.5
+
+###############################################################################
+#                               Attitude Control                              #
+###############################################################################
+
+param set-default MC_PITCH_P  6
+param set-default MC_ROLL_P   6
+param set-default MC_YAW_P    2.5
+param set-default MC_YAWRATE_MAX  120
+param set-default MC_YAW_WEIGHT 1.0
+
+###############################################################################
+#                           Angular Velocity Control                          #
+###############################################################################
+
+param set-default VM_MASS 1.0
+# param set-default VM_INERTIA_XX 0.03
+# param set-default VM_INERTIA_YY 0.03
+# param set-default VM_INERTIA_ZZ 0.05
+
+###############################################################################
+#                              Control Allocation                             #
+###############################################################################
+
+param set-default CA_AIRFRAME 3
+param set-default CA_METHOD 2
+
+param set-default CA_ACT0_MIN 0.0
+param set-default CA_ACT0_MAX 1.0
+param set-default CA_ACT1_MIN 0.0
+param set-default CA_ACT1_MAX 1.0
+param set-default CA_ACT2_MIN 0.0
+param set-default CA_ACT2_MAX 1.0
+param set-default CA_ACT3_MIN 0.0
+param set-default CA_ACT3_MAX 1.0
+param set-default CA_ACT4_MIN 0.0
+param set-default CA_ACT4_MAX 1.0
+param set-default CA_ACT5_MIN 0.0
+param set-default CA_ACT5_MAX 1.0
+param set-default CA_ACT6_MIN 0.0
+param set-default CA_ACT6_MAX 1.0
+
+param set-default CA_MC_R0_AY 0.0
+param set-default CA_MC_R0_CT 4.3229
+param set-default CA_MC_R0_KM 0.0415
+param set-default CA_MC_R0_PX 0.12
+param set-default CA_MC_R0_PY 0.2
+param set-default CA_MC_R0_PZ 0.0
+
+param set-default CA_MC_R1_AY 0.0
+param set-default CA_MC_R1_CT 4.3229
+param set-default CA_MC_R1_KM -0.0415
+param set-default CA_MC_R1_PX 0.12
+param set-default CA_MC_R1_PY -0.2
+param set-default CA_MC_R1_PZ 0.0
+
+param set-default CA_MC_R2_AX 0.0
+param set-default CA_MC_R2_AY 0.0
+param set-default CA_MC_R2_AZ -1.0
+param set-default CA_MC_R2_CT 3.541
+param set-default CA_MC_R2_KM 0.0509
+param set-default CA_MC_R2_PX -0.24
+param set-default CA_MC_R2_PY 0.0
+param set-default CA_MC_R2_PZ 0.0
+
+param set-default CA_WING_AREA 0.2589
+param set-default CA_CHORD_LEN 0.3305
+param set-default CA_AERO_MOMENT_L 0.018
+param set-default CA_AERO_MOMENT_M -0.05

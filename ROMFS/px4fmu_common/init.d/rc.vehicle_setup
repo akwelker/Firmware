@@ -114,7 +114,7 @@ fi
 #
 # VTOL setup.
 #
-if [ $VEHICLE_TYPE = vtol ]
+if [ $VEHICLE_TYPE = vtol ] || [ $VEHICLE_TYPE = vtol_combmodes ]
 then
 	if [ $MIXER = none ]
 	then

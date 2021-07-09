@@ -17,16 +17,22 @@ ekf2 start &
 
 airspeed_selector start
 
-# vtol_att_control start
+if [ $VEHICLE_TYPE = vtol_combmodes ]
+then
+	mc_att_control start
+	flight_mode_manager start
+else
+	vtol_att_control start
 
-mc_rate_control start #vtol
-mc_att_control start #vtol
-flight_mode_manager start
-# mc_pos_control start vtol
-# mc_hover_thrust_estimator start
+	mc_rate_control start
+	mc_att_control start
+	flight_mode_manager start
+	mc_pos_control start vtol
+	mc_hover_thrust_estimator start
 
-# fw_att_control start vtol
-# fw_pos_control_l1 start vtol
+	fw_att_control start vtol
+	fw_pos_control_l1 start vtol
+fi
 
 # Start Land Detector
 # Multicopter for now until we have something for VTOL
