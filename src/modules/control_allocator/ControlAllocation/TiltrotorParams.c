@@ -32,44 +32,23 @@
  ****************************************************************************/
 
 /**
- * @file ActuatorEffectivenessVTOLCombinedModesParams.c
+ * @file TiltrotorParams.c
  *
- * Parameters for the actuator effectiveness of VTOLs flying in Combined-Modes setup.
+ * Tiltrotor actuator parameters
  *
  * @author Mason Peterson <mbpeterson70@gmail.com>
  */
 
 /**
- * Planform area of the vehicle's wing
+ * Maximum elevon angle in degrees
  *
  * @group Control Allocation
  */
-PARAM_DEFINE_FLOAT(CA_WING_AREA, 0.0);
+PARAM_DEFINE_FLOAT(CA_ELEVON_MAX, 45.0);
 
 /**
- * Mean chord length of the vehicle's wing
+ * Maximum tiltrotor servo angle in degrees
  *
  * @group Control Allocation
  */
-PARAM_DEFINE_FLOAT(CA_CHORD_LEN, 0.0);
-
-/**
- * Vehicle's wing span
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_SPAN, 0.0);
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame x axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_MOMENT_L, 0.0);
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame y axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_MOMENT_M, 0.0);
+PARAM_DEFINE_FLOAT(CA_TLT_SRVO_MAX, 115.0);

@@ -83,13 +83,13 @@ public:
 	}
 
 	/**
-	 * Sets the current pressure
+	 * Sets the current air density
 	 *
-	 * @param pressure air pressure
+	 * @param air_density air density
 	 */
-	virtual void setPressure(const float pressure)
+	virtual void setAirDensity(const float air_density)
 	{
-		_pressure = pressure;
+		_air_density = air_density;
 	}
 
 	/**
@@ -139,5 +139,5 @@ protected:
 	matrix::Vector<float, NUM_ACTUATORS> _trim;			///< Actuator trim
 	FlightPhase _flight_phase{FlightPhase::HOVER_FLIGHT};		///< Current flight phase
 	float _true_airspeed;
-	float _pressure;
+	float _air_density;
 };

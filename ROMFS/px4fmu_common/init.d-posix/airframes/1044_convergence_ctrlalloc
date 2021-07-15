@@ -73,6 +73,8 @@ param set-default CA_ACT5_MIN 0.0
 param set-default CA_ACT5_MAX 1.0
 param set-default CA_ACT6_MIN 0.0
 param set-default CA_ACT6_MAX 1.0
+param set-default CA_ACT7_MIN 0.0
+param set-default CA_ACT7_MAX 1.0
 
 param set-default CA_MC_R0_AY 0.0
 param set-default CA_MC_R0_CT 4.3229
@@ -99,5 +101,8 @@ param set-default CA_MC_R2_PZ 0.0
 
 param set-default CA_WING_AREA 0.2589
 param set-default CA_CHORD_LEN 0.3305
+param set-default CA_SPAN 1.4224
 param set-default CA_AERO_MOMENT_L 0.018
 param set-default CA_AERO_MOMENT_M -0.05
+param set-default CA_ELEVON_MAX 45.0
+param set-default CA_TLT_SRVO_MAX 115.0

@@ -62,8 +62,8 @@
 #include <uORB/Subscription.hpp>
 #include <uORB/SubscriptionCallback.hpp>
 #include <uORB/topics/actuator_controls.h>
-#include <uORB/topics/airspeed.h>
-#include <uORB/topics/sensor_baro.h>
+#include <uORB/topics/airspeed_validated.h>
+#include <uORB/topics/vehicle_air_data.h>
 #include <uORB/topics/battery_status.h>
 #include <uORB/topics/control_allocator_status.h>
 #include <uORB/topics/parameter_update.h>
@@ -152,8 +152,8 @@ private:
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 
 	uORB::Subscription _battery_status_sub{ORB_ID(battery_status)};			/**< battery status subscription */
-	uORB::Subscription _airspeed_sub{ORB_ID(airspeed)};				/**< airspeed subscription */
-	uORB::Subscription _sensor_baro_sub{ORB_ID(sensor_baro)};		/**< sensor baro subscription .*/
+	uORB::Subscription _airspeed_sub{ORB_ID(airspeed_validated)};				/**< airspeed subscription */
+	uORB::Subscription _vehicle_air_data_sub{ORB_ID(vehicle_air_data)};		/**< vehicle air data subscription .*/
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};
 
 	matrix::Vector3f _torque_sp;

@@ -304,8 +304,8 @@ ControlAllocator::Run()
 	bool do_update = false;
 	vehicle_torque_setpoint_s vehicle_torque_setpoint;
 	vehicle_thrust_setpoint_s vehicle_thrust_setpoint;
-	airspeed_s airspeed;
-	sensor_baro_s sensor_baro;
+	airspeed_validated_s airspeed;
+	vehicle_air_data_s v_air_data;
 
 	// Run allocator on torque changes
 	if (_vehicle_torque_setpoint_sub.update(&vehicle_torque_setpoint)) {
@@ -313,7 +313,8 @@ ControlAllocator::Run()
 
 		do_update = true;
 		_timestamp_sample = vehicle_torque_setpoint.timestamp_sample;
-
+		// PX4_INFO("vehicle_torque_timestamp: %lu", vehicle_torque_setpoint.timestamp);
+		// _new_timestamp = vehicle_torque_setpoint.timestamp;
 	}
 
 	// Also run allocator on thrust setpoint changes if the torque setpoint
@@ -325,15 +326,17 @@ ControlAllocator::Run()
 			do_update = true;
 			_timestamp_sample = vehicle_thrust_setpoint.timestamp_sample;
 		}
+		// PX4_INFO("vehicle_thrust_timestamp: %lu", vehicle_thrust_setpoint.timestamp);
 	}
 
-	// Also run allocator when airspeed changes or when pressure changes
+	// Also run allocator when airspeed changes or when air density changes
 	if (_airspeed_sub.update(&airspeed)) {
+		// PX4_INFO("airspeed: %.5f", (double) airspeed.true_airspeed_m_s);
 		_actuator_effectiveness->setAirspeed(airspeed.true_airspeed_m_s);
 		do_update = true;
 	}
-	if (_sensor_baro_sub.update(&sensor_baro)) {
-		_actuator_effectiveness->setPressure(sensor_baro.pressure);
+	if (_vehicle_air_data_sub.update(&v_air_data)) {
+		_actuator_effectiveness->setAirDensity(v_air_data.rho);
 		do_update = true;
 	}
 
@@ -374,7 +377,7 @@ ControlAllocator::update_effectiveness_matrix_if_needed()
 	matrix::Matrix<float, NUM_AXES, NUM_ACTUATORS> effectiveness;
 
 	if (_actuator_effectiveness->getEffectivenessMatrix(effectiveness)) {
-		//debug
+		// debug
 		// PX4_INFO("effectiveness matrix");
 		// for(int i = 0; i < NUM_AXES; ++i)
 		// 	PX4_INFO("\t%d: %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
@@ -382,6 +385,8 @@ ControlAllocator::update_effectiveness_matrix_if_needed()
 		// 		(double) effectiveness(i, 4), (double) effectiveness(i, 5), (double) effectiveness(i, 6), (double) effectiveness(i, 7),
 		// 		(double) effectiveness(i, 8), (double) effectiveness(i, 9), (double) effectiveness(i, 10), (double) effectiveness(i, 11),
 		// 		(double) effectiveness(i, 12), (double) effectiveness(i, 13), (double) effectiveness(i, 14), (double) effectiveness(i, 15));
+		// PX4_INFO("elevon_effectiveness: %.5f %.5f %.5f %.5f",
+		// 	(double) effectiveness(0, 6), (double) effectiveness(0, 7), (double) effectiveness(1, 6), (double) effectiveness(1, 7));
 		const matrix::Vector<float, NUM_ACTUATORS> &trim = _actuator_effectiveness->getActuatorTrim();
 
 		// Set 0 effectiveness for actuators that are disabled (act_min >= act_max)
@@ -416,6 +421,10 @@ ControlAllocator::publish_actuator_setpoint()
 	actuator_sp.copyTo(vehicle_actuator_setpoint.actuator);
 
 	_vehicle_actuator_setpoint_pub.publish(vehicle_actuator_setpoint);
+	// PX4_INFO("torque_setpoint: %.5f %.5f %.5f", (double) _torque_sp(0), (double) _torque_sp(1), (double) _torque_sp(2));
+	// PX4_INFO("thrust_setpoint: %.5f %.5f %.5f", (double) _thrust_sp(0), (double) _thrust_sp(1), (double) _thrust_sp(2));
+	// PX4_INFO("actuator_setpoint: %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f", (double) actuator_sp(0), (double) actuator_sp(1), (double) actuator_sp(2),
+	// 	(double) actuator_sp(3), (double) actuator_sp(4), (double) actuator_sp(5), (double) actuator_sp(6), (double) actuator_sp(7));
 }
 
 void
