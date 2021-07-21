@@ -310,9 +310,11 @@ ControlAllocator::Run()
 	// Run allocator on torque changes
 	if (_vehicle_torque_setpoint_sub.update(&vehicle_torque_setpoint)) {
 		_torque_sp = matrix::Vector3f(vehicle_torque_setpoint.xyz);
+		// _torque_sp = matrix::Vector3f(0.f, 0.f, 0.f);
 
 		do_update = true;
 		_timestamp_sample = vehicle_torque_setpoint.timestamp_sample;
+		// debug delete
 		// PX4_INFO("vehicle_torque_timestamp: %lu", vehicle_torque_setpoint.timestamp);
 		// _new_timestamp = vehicle_torque_setpoint.timestamp;
 	}
@@ -321,16 +323,23 @@ ControlAllocator::Run()
 	// has not been updated for more than 5ms
 	if (_vehicle_thrust_setpoint_sub.update(&vehicle_thrust_setpoint)) {
 		_thrust_sp = matrix::Vector3f(vehicle_thrust_setpoint.xyz);
+		// if (_i < 100)
+		// 	_thrust_sp = matrix::Vector3f(0.f, 0.f, -5.f);
+		// else
+		// 	_thrust_sp = matrix::Vector3f(0.f, 0.f, -10.f);
+		// ++_i;
 
 		if (dt > 5_ms) {
 			do_update = true;
 			_timestamp_sample = vehicle_thrust_setpoint.timestamp_sample;
 		}
+		// debug delete
 		// PX4_INFO("vehicle_thrust_timestamp: %lu", vehicle_thrust_setpoint.timestamp);
 	}
 
 	// Also run allocator when airspeed changes or when air density changes
 	if (_airspeed_sub.update(&airspeed)) {
+		// debug delete
 		// PX4_INFO("airspeed: %.5f", (double) airspeed.true_airspeed_m_s);
 		_actuator_effectiveness->setAirspeed(airspeed.true_airspeed_m_s);
 		do_update = true;
@@ -377,7 +386,7 @@ ControlAllocator::update_effectiveness_matrix_if_needed()
 	matrix::Matrix<float, NUM_AXES, NUM_ACTUATORS> effectiveness;
 
 	if (_actuator_effectiveness->getEffectivenessMatrix(effectiveness)) {
-		// debug
+		// debug delete
 		// PX4_INFO("effectiveness matrix");
 		// for(int i = 0; i < NUM_AXES; ++i)
 		// 	PX4_INFO("\t%d: %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
@@ -386,16 +395,12 @@ ControlAllocator::update_effectiveness_matrix_if_needed()
 		// 		(double) effectiveness(i, 8), (double) effectiveness(i, 9), (double) effectiveness(i, 10), (double) effectiveness(i, 11),
 		// 		(double) effectiveness(i, 12), (double) effectiveness(i, 13), (double) effectiveness(i, 14), (double) effectiveness(i, 15));
 		// PX4_INFO("elevon_effectiveness: %.5f %.5f %.5f %.5f",
-		// 	(double) effectiveness(0, 6), (double) effectiveness(0, 7), (double) effectiveness(1, 6), (double) effectiveness(1, 7));
+		// 	(double) effectiveness(0, 5), (double) effectiveness(0, 6), (double) effectiveness(1, 5), (double) effectiveness(1, 6));
 		const matrix::Vector<float, NUM_ACTUATORS> &trim = _actuator_effectiveness->getActuatorTrim();
 
 		// Set 0 effectiveness for actuators that are disabled (act_min >= act_max)
 		matrix::Vector<float, NUM_ACTUATORS> actuator_max = _control_allocation->getActuatorMax();
 		matrix::Vector<float, NUM_ACTUATORS> actuator_min = _control_allocation->getActuatorMin();
-		// debug
-		// PX4_INFO("actuator trim");
-		// PX4_INFO("\t%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
-		// 	(double) trim(0), (double) trim(1), (double) trim(2), (double) trim(3), (double) trim(4), (double) trim(5), (double) trim(6), (double) trim(7), (double) trim(8), (double) trim(9), (double) trim(10), (double) trim(11), (double) trim(12), (double) trim(13), (double) trim(14), (double) trim(15));
 
 		for (size_t j = 0; j < NUM_ACTUATORS; j++) {
 			if (actuator_min(j) >= actuator_max(j)) {
@@ -421,10 +426,17 @@ ControlAllocator::publish_actuator_setpoint()
 	actuator_sp.copyTo(vehicle_actuator_setpoint.actuator);
 
 	_vehicle_actuator_setpoint_pub.publish(vehicle_actuator_setpoint);
-	// PX4_INFO("torque_setpoint: %.5f %.5f %.5f", (double) _torque_sp(0), (double) _torque_sp(1), (double) _torque_sp(2));
-	// PX4_INFO("thrust_setpoint: %.5f %.5f %.5f", (double) _thrust_sp(0), (double) _thrust_sp(1), (double) _thrust_sp(2));
-	// PX4_INFO("actuator_setpoint: %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f", (double) actuator_sp(0), (double) actuator_sp(1), (double) actuator_sp(2),
-	// 	(double) actuator_sp(3), (double) actuator_sp(4), (double) actuator_sp(5), (double) actuator_sp(6), (double) actuator_sp(7));
+	// debug delete
+	PX4_INFO("torque_setpoint: %.5f %.5f %.5f", (double) _torque_sp(0), (double) _torque_sp(1), (double) _torque_sp(2));
+	PX4_INFO("thrust_setpoint: %.5f %.5f %.5f", (double) _thrust_sp(0), (double) _thrust_sp(1), (double) _thrust_sp(2));
+	PX4_INFO("actuator_setpoint: %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f", (double) actuator_sp(0), (double) actuator_sp(1), (double) actuator_sp(2),
+		(double) actuator_sp(3), (double) actuator_sp(4), (double) actuator_sp(5), (double) actuator_sp(6), (double) actuator_sp(7));
+	PX4_INFO("allocated_thrust: %.5f %.5f %.5f", (double) _control_allocation->getAllocatedControl()(3),
+		(double) _control_allocation->getAllocatedControl()(4),
+		(double) _control_allocation->getAllocatedControl()(5));
+	PX4_INFO("allocated_torque: %.5f %.5f %.5f", (double) _control_allocation->getAllocatedControl()(0),
+		(double) _control_allocation->getAllocatedControl()(1),
+		(double) _control_allocation->getAllocatedControl()(2));
 }
 
 void

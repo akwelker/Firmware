@@ -71,9 +71,9 @@ param set-default CA_ACT4_MIN 0.0
 param set-default CA_ACT4_MAX 1.0
 param set-default CA_ACT5_MIN 0.0
 param set-default CA_ACT5_MAX 1.0
-param set-default CA_ACT6_MIN 0.0
+param set-default CA_ACT6_MIN -1.0
 param set-default CA_ACT6_MAX 1.0
-param set-default CA_ACT7_MIN 0.0
+param set-default CA_ACT7_MIN -1.0
 param set-default CA_ACT7_MAX 1.0
 
 param set-default CA_MC_R0_AY 0.0
