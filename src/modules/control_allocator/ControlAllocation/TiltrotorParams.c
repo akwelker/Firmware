@@ -40,13 +40,6 @@
  */
 
 /**
- * Maximum elevon angle in degrees
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_ELEVON_MAX, 45.0);
-
-/**
  * Maximum tiltrotor servo angle in degrees
  *
  * @group Control Allocation

@@ -117,5 +117,4 @@ param set-default CA_CHORD_LEN 0.3305
 param set-default CA_SPAN 1.4224
 param set-default CA_AERO_MOMENT_L 0.018
 param set-default CA_AERO_MOMENT_M -0.05
-param set-default CA_ELEVON_MAX 45.0
 param set-default CA_TLT_SRVO_MAX 115.0
