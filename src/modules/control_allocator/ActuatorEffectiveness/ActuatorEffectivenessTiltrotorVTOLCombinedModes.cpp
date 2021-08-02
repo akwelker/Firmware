@@ -86,19 +86,6 @@ ActuatorEffectivenessTiltrotorVTOLCombinedModes::getEffectivenessMatrix(matrix::
 	// updateParams();
 	float elevon_factor = 0.5f * _air_density * _true_airspeed * _true_airspeed * _param_ca_wing_area.get();
 
-	// PX4_INFO("gamma: %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f",
-	// 	(double) _air_density,
-	// 	(double) _true_airspeed,
-	// 	(double) _param_ca_wing_area.get(),
-	// 	(double) _param_ca_aero_moment_l.get(),
-	// 	(double) _param_ca_span.get(),
-	// 	(double) _param_ca_aero_moment_m.get(),
-	// 	(double) _param_ca_chord_len.get(),
-	// 	(double) (-elevon_factor * _param_ca_aero_moment_l.get() * _param_ca_span.get()),
-	// 	(double) (elevon_factor * _param_ca_aero_moment_l.get() * _param_ca_span.get()),
-	// 	(double) (elevon_factor * _param_ca_aero_moment_m.get() * _param_ca_chord_len.get()),
-	// 	(double) (elevon_factor * _param_ca_aero_moment_m.get() * _param_ca_chord_len.get()));
-
 	// const float tiltrotor_vtol_combined_modes[NUM_AXES][NUM_ACTUATORS] = {
 	// 	{-rotors[0].moment_ratio, (-rotors[0].thrust_coef * rotors[0].position_y), -rotors[1].moment_ratio, (-rotors[1].thrust_coef * rotors[1].position_y), -rotors[2].moment_ratio, (-rotors[2].thrust_coef * rotors[2].position_y), (-elevon_factor * _param_ca_aero_moment_l.get() * _param_ca_span.get()), (elevon_factor * _param_ca_aero_moment_l.get() * _param_ca_span.get()), 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f},
 	// 	{(rotors[0].thrust_coef * rotors[0].position_z), (rotors[0].thrust_coef * rotors[0].position_x), (rotors[1].thrust_coef * rotors[1].position_z), (rotors[1].thrust_coef * rotors[1].position_x), (rotors[2].thrust_coef * rotors[2].position_z), (rotors[2].thrust_coef * rotors[2].position_x), (elevon_factor * _param_ca_aero_moment_m.get() * _param_ca_chord_len.get()), (elevon_factor * _param_ca_aero_moment_m.get() * _param_ca_chord_len.get()), 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f},

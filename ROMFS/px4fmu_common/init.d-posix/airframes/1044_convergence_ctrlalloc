@@ -40,17 +40,30 @@ param set-default MPC_THR_HOVER 0.5
 param set-default MC_PITCH_P  6
 param set-default MC_ROLL_P   6
 param set-default MC_YAW_P    2.5
-param set-default MC_YAWRATE_MAX  120
+param set-default MC_YAWRATE_MAX 120
+param set-default MC_PITCHRATE_MAX 120
+param set-default MC_ROLLRATE_MAX 120
 param set-default MC_YAW_WEIGHT 1.0
 
 ###############################################################################
 #                           Angular Velocity Control                          #
 ###############################################################################
 
-param set-default VM_MASS 1.0
-# param set-default VM_INERTIA_XX 0.03
-# param set-default VM_INERTIA_YY 0.03
-# param set-default VM_INERTIA_ZZ 0.05
+param set-default VM_MASS 0.7
+param set-default VM_INERTIA_XX 0.0165
+param set-default VM_INERTIA_YY 0.025
+param set-default VM_INERTIA_ZZ 0.0282
+param set-default VM_INERTIA_XZ 0.000048
+
+param set-default AVC_X_P 15.0
+param set-default AVC_Y_P 15.0
+param set-default AVC_Z_P 15.0
+param set-default AVC_X_I 0.0
+param set-default AVC_Y_I 0.0
+param set-default AVC_Z_I 0.0
+param set-default AVC_X_D 0.001
+param set-default AVC_Y_D 0.001
+param set-default AVC_Y_D 0.001
 
 ###############################################################################
 #                              Control Allocation                             #
