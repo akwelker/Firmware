@@ -206,6 +206,4 @@ private:
 		(ParamFloat<px4::params::CA_ACT15_MAX>) _param_ca_act15_max
 	)
 
-	// uint64_t _i{0};
-
 };
