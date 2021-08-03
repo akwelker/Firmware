@@ -218,7 +218,6 @@ rtps:
     id: 99
     send: true
   - msg: vehicle_rates_setpoint
-    receive: true
     id: 100
   - msg: vehicle_roi
     id: 101
@@ -343,6 +342,14 @@ rtps:
     id: 158
   - msg: estimator_event_flags
     id: 159
+  - msg: event
+    id: 160
+  - msg: estimator_baro_bias
+    id: 161
+  - msg: internal_combustion_engine_status
+    id: 162
+  - msg: camera_status
+    id: 163
   ########## multi topics: begin ##########
   - msg: actuator_controls_0
     id: 180

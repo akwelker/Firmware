@@ -1,9 +1,6 @@
 
 px4_add_board(
 	PLATFORM nuttx
-	VENDOR px4
-	MODEL fmu-v6x
-	LABEL test
 	TOOLCHAIN arm-none-eabi
 	ARCHITECTURE cortex-m7
 	ROMFSROOT px4fmu_common
@@ -50,7 +47,6 @@ px4_add_board(
 		pwm_out
 		px4io
 		rc_input
-		roboclaw
 		rpm
 		safety_button
 		telemetry # all available telemetry drivers
@@ -74,7 +70,7 @@ px4_add_board(
 		land_detector
 		landing_target_estimator
 		load_mon
-		local_position_estimator
+		#local_position_estimator
 		logger
 		mavlink
 		mc_att_control
@@ -95,15 +91,14 @@ px4_add_board(
 	SYSTEMCMDS
 		bl_update
 		dmesg
-		dumpfile
 		esc_calib
 		gpio
 		hardfault_log
 		i2cdetect
 		led_control
 		mft
+		microbench
 		mixer
-		motor_ramp
 		motor_test
 		mtd
 		nshterm
@@ -112,7 +107,6 @@ px4_add_board(
 		perf
 		pwm
 		reboot
-		reflect
 		sd_bench
 		serial_test
 		system_time

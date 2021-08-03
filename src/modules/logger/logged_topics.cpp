@@ -67,6 +67,7 @@ void LoggedTopics::add_default_topics()
 	add_topic("home_position");
 	add_topic("hover_thrust_estimate", 100);
 	add_topic("input_rc", 500);
+	add_topic("internal_combustion_engine_status", 10);
 	add_topic("mag_worker_data");
 	add_topic("manual_control_setpoint", 200);
 	add_topic("manual_control_switches");
@@ -135,7 +136,7 @@ void LoggedTopics::add_default_topics()
 #if CONSTRAINED_MEMORY
 	static constexpr uint8_t MAX_ESTIMATOR_INSTANCES = 1;
 #else
-	static constexpr uint8_t MAX_ESTIMATOR_INSTANCES = 6; // artificailly limited until PlotJuggler fixed
+	static constexpr uint8_t MAX_ESTIMATOR_INSTANCES = 6; // artificially limited until PlotJuggler fixed
 	add_topic("estimator_selector_status");
 	add_topic_multi("estimator_attitude", 500, MAX_ESTIMATOR_INSTANCES);
 	add_topic_multi("estimator_global_position", 1000, MAX_ESTIMATOR_INSTANCES);
@@ -144,6 +145,7 @@ void LoggedTopics::add_default_topics()
 #endif
 
 	add_topic_multi("ekf_gps_drift", 1000, MAX_ESTIMATOR_INSTANCES);
+	add_topic_multi("estimator_baro_bias", 500, MAX_ESTIMATOR_INSTANCES);
 	add_topic_multi("estimator_event_flags", 0, MAX_ESTIMATOR_INSTANCES);
 	add_topic_multi("estimator_innovation_test_ratios", 500, MAX_ESTIMATOR_INSTANCES);
 	add_topic_multi("estimator_innovation_variances", 500, MAX_ESTIMATOR_INSTANCES);
@@ -159,7 +161,7 @@ void LoggedTopics::add_default_topics()
 	// log all raw sensors at minimal rate (at least 1 Hz)
 	add_topic_multi("battery_status", 200, 2);
 	add_topic_multi("differential_pressure", 1000, 2);
-	add_topic_multi("distance_sensor", 1000);
+	add_topic_multi("distance_sensor", 1000, 2);
 	add_topic_multi("optical_flow", 1000, 1);
 	add_topic_multi("sensor_accel", 1000, 4);
 	add_topic_multi("sensor_baro", 1000, 4);

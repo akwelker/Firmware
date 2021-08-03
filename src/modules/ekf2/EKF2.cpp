@@ -152,6 +152,7 @@ EKF2::EKF2(bool multi_mode, const px4::wq_config_t &config, bool replay_mode):
 	_param_ekf2_drag_noise(_params->drag_noise),
 	_param_ekf2_bcoef_x(_params->bcoef_x),
 	_param_ekf2_bcoef_y(_params->bcoef_y),
+	_param_ekf2_mcoef(_params->mcoef),
 	_param_ekf2_aspd_max(_params->max_correction_airspeed),
 	_param_ekf2_pcoef_xp(_params->static_pressure_coef_xp),
 	_param_ekf2_pcoef_xn(_params->static_pressure_coef_xn),
@@ -191,6 +192,7 @@ bool EKF2::multi_init(int imu, int mag)
 
 	_ekf2_timestamps_pub.advertise();
 	_ekf_gps_drift_pub.advertise();
+	_estimator_baro_bias_pub.advertise();
 	_estimator_innovation_test_ratios_pub.advertise();
 	_estimator_innovation_variances_pub.advertise();
 	_estimator_innovations_pub.advertise();
@@ -344,7 +346,7 @@ void EKF2::Run()
 			   || (imu.accel_device_id != _device_id_accel)
 			   || (imu.gyro_device_id != _device_id_gyro)) {
 
-			PX4_INFO("%d - resetting IMU bias", _instance);
+			PX4_DEBUG("%d - resetting IMU bias", _instance);
 			_device_id_accel = imu.accel_device_id;
 			_device_id_gyro = imu.gyro_device_id;
 
@@ -495,6 +497,7 @@ void EKF2::Run()
 			PublishWindEstimate(now);
 
 			// publish status/logging messages
+			PublishBaroBias(now);
 			PublishEkfDriftMetrics(now);
 			PublishEventFlags(now);
 			PublishStates(now);
@@ -544,6 +547,28 @@ void EKF2::PublishAttitude(const hrt_abstime &timestamp)
 		// we do this by publishing an attitude with zero timestamp
 		vehicle_attitude_s att{};
 		_attitude_pub.publish(att);
+	}
+}
+
+void EKF2::PublishBaroBias(const hrt_abstime &timestamp)
+{
+	if (_device_id_baro != 0) {
+		const BaroBiasEstimator::status &status = _ekf.getBaroBiasEstimatorStatus();
+
+		if (fabsf(status.bias - _last_baro_bias_published) > 0.001f) {
+			estimator_baro_bias_s baro_bias{};
+			baro_bias.timestamp_sample = timestamp;
+			baro_bias.baro_device_id = _device_id_baro;
+			baro_bias.bias = status.bias;
+			baro_bias.bias_var = status.bias_var;
+			baro_bias.innov = status.innov;
+			baro_bias.innov_var = status.innov_var;
+			baro_bias.innov_test_ratio = status.innov_test_ratio;
+			baro_bias.timestamp = _replay_mode ? timestamp : hrt_absolute_time();
+			_estimator_baro_bias_pub.publish(baro_bias);
+
+			_last_baro_bias_published = status.bias;
+		}
 	}
 }
 
@@ -1607,7 +1632,12 @@ void EKF2::UpdateRangeSample(ekf2_timestamps_s &ekf2_timestamps)
 					    && (distance_sensor.orientation == distance_sensor_s::ROTATION_DOWNWARD_FACING)) {
 
 						if (_distance_sensor_sub.ChangeInstance(i)) {
-							PX4_INFO("%d - selected distance_sensor:%d", _instance, i);
+							int ndist = orb_group_count(ORB_ID(distance_sensor));
+
+							if (ndist > 1) {
+								PX4_INFO("%d - selected distance_sensor:%d (%d advertised)", _instance, i, ndist);
+							}
+
 							_distance_sensor_selected = true;
 							break;
 						}
@@ -1817,9 +1847,9 @@ int EKF2::task_spawn(int argc, char *argv[])
 										_ekf2_selector.load()->ScheduleNow();
 									}
 
-									PX4_INFO("starting instance %d, IMU:%" PRIu8 " (%" PRIu32 "), MAG:%" PRIu8 " (%" PRIu32 ")", actual_instance,
-										 imu, vehicle_imu_sub.get().accel_device_id,
-										 mag, vehicle_mag_sub.get().device_id);
+									PX4_DEBUG("starting instance %d, IMU:%" PRIu8 " (%" PRIu32 "), MAG:%" PRIu8 " (%" PRIu32 ")", actual_instance,
+										  imu, vehicle_imu_sub.get().accel_device_id,
+										  mag, vehicle_mag_sub.get().device_id);
 
 									// sleep briefly before starting more instances
 									px4_usleep(10000);
