@@ -72,7 +72,7 @@ public:
         _actuator_sp(3) = 0.f;
         _actuator_sp(4) = atan2f(mix_solution(1), mix_solution(0)) / (tilt_servo_max);
         _actuator_sp(5) = 1.f - atan2f(mix_solution(3), mix_solution(2)) / (tilt_servo_max);
-        _actuator_sp(6) = -mix_solution(5);
+        _actuator_sp(6) = mix_solution(5);
         _actuator_sp(7) = mix_solution(6);
 
 
@@ -91,7 +91,7 @@ public:
         clipped_mix_solution(3) = _actuator_sp(1) /
             (float) sqrt(1 + 1 / pow(tanf(tilt_servo_max * (1.f - _actuator_sp(5))), 2));
         clipped_mix_solution(4) = _actuator_sp(2);
-        clipped_mix_solution(5) = -_actuator_sp(6);
+        clipped_mix_solution(5) = _actuator_sp(6);
         clipped_mix_solution(6) = _actuator_sp(7);
 
         // Sign information is lost from squaring/taking the square root so we infer the clipped_mix_solution
