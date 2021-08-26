@@ -30,6 +30,9 @@ set PWM_OUT 123
 set MIXER_AUX direct_aux
 set PWM_AUX_OUT 123
 
+# Necessary to connect correctly with AirSim
+param set ASPD_PRIMARY 0
+
 param set-default MPC_USE_HTE 0
 param set-default MPC_THR_HOVER 0.5
 
@@ -90,15 +93,15 @@ param set-default CA_ACT7_MIN -1.0
 param set-default CA_ACT7_MAX 1.0
 
 param set-default CA_MC_R0_AY 0.0
-param set-default CA_MC_R0_CT 4.3229
-param set-default CA_MC_R0_KM 0.0415
+param set-default CA_MC_R0_CT 3.8235
+param set-default CA_MC_R0_KM 0.1657
 param set-default CA_MC_R0_PX 0.12
 param set-default CA_MC_R0_PY 0.2
 param set-default CA_MC_R0_PZ 0.0
 
 param set-default CA_MC_R1_AY 0.0
-param set-default CA_MC_R1_CT 4.3229
-param set-default CA_MC_R1_KM -0.0415
+param set-default CA_MC_R1_CT 3.8235
+param set-default CA_MC_R1_KM -0.1657
 param set-default CA_MC_R1_PX 0.12
 param set-default CA_MC_R1_PY -0.2
 param set-default CA_MC_R1_PZ 0.0
@@ -106,8 +109,8 @@ param set-default CA_MC_R1_PZ 0.0
 param set-default CA_MC_R2_AX 0.0
 param set-default CA_MC_R2_AY 0.0
 param set-default CA_MC_R2_AZ -1.0
-param set-default CA_MC_R2_CT 3.541
-param set-default CA_MC_R2_KM 0.0509
+param set-default CA_MC_R2_CT 3.0427
+param set-default CA_MC_R2_KM 0.0428
 param set-default CA_MC_R2_PX -0.24
 param set-default CA_MC_R2_PY 0.0
 param set-default CA_MC_R2_PZ 0.0

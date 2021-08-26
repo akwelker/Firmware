@@ -99,6 +99,9 @@ public:
         if ((mix_solution(2) < 0 && clipped_mix_solution(2) > 0) ||
             (mix_solution(2) > 0 && clipped_mix_solution(2) < 0))
             clipped_mix_solution(2) *= -1;
+        if ((mix_solution(0) < 0 && clipped_mix_solution(0) > 0) ||
+            (mix_solution(0) > 0 && clipped_mix_solution(0) < 0))
+            clipped_mix_solution(0) *= -1;
 
         // Compute achieved control
         _control_allocated = _effectiveness * clipped_mix_solution;
