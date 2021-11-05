@@ -164,6 +164,10 @@ ControlAllocator::update_allocation_method()
 			tmp = new ControlAllocationPseudoInverseTiltrotorVTOLCombinedModes();
 			break;
 
+		case AllocationMethod::NONLINEAR_OPTIMIZATION:
+			tmp = new ControlAllocationNonlinearOptimization();
+			break;
+
 		default:
 			PX4_ERR("Unknown allocation method");
 			break;
@@ -215,6 +219,10 @@ ControlAllocator::update_effectiveness_source()
 
 		case EffectivenessSource::TILTROTOR_VTOL_COMBINED_MODES:
 			tmp = new ActuatorEffectivenessTiltrotorVTOLCombinedModes();
+			break;
+
+		case EffectivenessSource::QUADPLANE_COMBINED_MODES:
+			tmp = new ActuatorEffectivenessQuadplaneVTOLCombinedModes();
 			break;
 
 		default:
@@ -306,6 +314,7 @@ ControlAllocator::Run()
 	vehicle_thrust_setpoint_s vehicle_thrust_setpoint;
 	airspeed_validated_s airspeed;
 	vehicle_air_data_s v_air_data;
+	vehicle_odometry_s vehicle_odometry;
 
 	// Run allocator on torque changes
 	if (_vehicle_torque_setpoint_sub.update(&vehicle_torque_setpoint)) {
@@ -329,17 +338,30 @@ ControlAllocator::Run()
 	// Also run allocator when airspeed changes or when air density changes
 	if (_airspeed_sub.update(&airspeed)) {
 		_actuator_effectiveness->setAirspeed(airspeed.true_airspeed_m_s);
+		_control_allocation->setAirspeed(airspeed.true_airspeed_m_s);
 		do_update = true;
 	}
 	if (_vehicle_air_data_sub.update(&v_air_data)) {
 		_actuator_effectiveness->setAirDensity(v_air_data.rho);
+		if ((AllocationMethod)_param_ca_method.get() == AllocationMethod::NONLINEAR_OPTIMIZATION)
+			((ControlAllocationNonlinearOptimization*) _control_allocation)->setAirDensity(v_air_data.rho);
 		do_update = true;
 	}
+	if ((AllocationMethod)_param_ca_method.get() == AllocationMethod::NONLINEAR_OPTIMIZATION &&
+		_vehicle_odometry_sub.update(&vehicle_odometry)) {
+		if (!std::isnan(vehicle_odometry.vx))
+			((ControlAllocationNonlinearOptimization*) _control_allocation)->setInertialVelocity(
+				matrix::Vector3f(vehicle_odometry.vx, vehicle_odometry.vy, vehicle_odometry.vz)
+			);
+		if (!std::isnan(vehicle_odometry.q[0]))
+			((ControlAllocationNonlinearOptimization*) _control_allocation)->setOrientation(matrix::Quatf(vehicle_odometry.q));
+	}
 
-	if (do_update) {
+	if (do_update || (AllocationMethod)_param_ca_method.get() == AllocationMethod::NONLINEAR_OPTIMIZATION) {
 		_last_run = now;
 
-		update_effectiveness_matrix_if_needed();
+		if ((AllocationMethod)_param_ca_method.get() != AllocationMethod::NONLINEAR_OPTIMIZATION)
+			update_effectiveness_matrix_if_needed();
 
 		// Set control setpoint vector
 		matrix::Vector<float, NUM_AXES> c;
@@ -521,6 +543,10 @@ int ControlAllocator::print_status()
 	case AllocationMethod::PSEUDO_INVERSE_TILTROTOR_COMBINED_MODES:
 		PX4_INFO("Method: Pseudo-inverse modified for Tiltrotor in combined modes");
 		break;
+
+	case AllocationMethod::NONLINEAR_OPTIMIZATION:
+		PX4_INFO("Method: Nonlinear Optimization");
+		break;
 	}
 
 	// Print current airframe
@@ -543,6 +569,10 @@ int ControlAllocator::print_status()
 
 	case EffectivenessSource::TILTROTOR_VTOL_COMBINED_MODES:
 		PX4_INFO("EffectivenessSource: Combined Modes Tiltrotor VTOL");
+		break;
+
+	case EffectivenessSource::QUADPLANE_COMBINED_MODES:
+		PX4_INFO("EffectivenessSource: Combined Modes Quadplane VTOL");
 		break;
 	}
 

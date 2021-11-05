@@ -46,11 +46,13 @@
 #include <ActuatorEffectivenessStandardVTOL.hpp>
 #include <ActuatorEffectivenessTiltrotorVTOL.hpp>
 #include <ActuatorEffectivenessTiltrotorVTOLCombinedModes.hpp>
+#include <ActuatorEffectivenessQuadplaneVTOLCombinedModes.hpp>
 
 #include <ControlAllocation.hpp>
 #include <ControlAllocationPseudoInverse.hpp>
 #include <ControlAllocationSequentialDesaturation.hpp>
 #include <ControlAllocationPseudoInverseTiltrotorVTOLCombinedModes.hpp>
+#include <ControlAllocationNonlinearOptimization.hpp>
 
 #include <lib/matrix/matrix/math.hpp>
 #include <lib/perf/perf_counter.h>
@@ -71,6 +73,7 @@
 #include <uORB/topics/vehicle_thrust_setpoint.h>
 #include <uORB/topics/vehicle_actuator_setpoint.h>
 #include <uORB/topics/vehicle_status.h>
+#include <uORB/topics/vehicle_odometry.h>
 
 class ControlAllocator : public ModuleBase<ControlAllocator>, public ModuleParams, public px4::WorkItem
 {
@@ -120,7 +123,8 @@ private:
 		NONE = -1,
 		PSEUDO_INVERSE = 0,
 		SEQUENTIAL_DESATURATION = 1,
-		PSEUDO_INVERSE_TILTROTOR_COMBINED_MODES = 2
+		PSEUDO_INVERSE_TILTROTOR_COMBINED_MODES = 2,
+		NONLINEAR_OPTIMIZATION = 3
 	};
 
 	AllocationMethod _allocation_method_id{AllocationMethod::NONE};
@@ -131,7 +135,8 @@ private:
 		MULTIROTOR = 0,
 		STANDARD_VTOL = 1,
 		TILTROTOR_VTOL = 2,
-		TILTROTOR_VTOL_COMBINED_MODES = 3
+		TILTROTOR_VTOL_COMBINED_MODES = 3,
+		QUADPLANE_COMBINED_MODES = 4
 	};
 
 	EffectivenessSource _effectiveness_source_id{EffectivenessSource::NONE};
@@ -154,6 +159,7 @@ private:
 	uORB::Subscription _vehicle_air_data_sub{ORB_ID(vehicle_air_data)};		/**< vehicle air data subscription .*/
 	uORB::Subscription _airspeed_sub{ORB_ID(airspeed_validated)};				/**< airspeed subscription */
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};
+	uORB::Subscription _vehicle_odometry_sub{ORB_ID(vehicle_odometry)};
 
 	matrix::Vector3f _torque_sp;
 	matrix::Vector3f _thrust_sp;

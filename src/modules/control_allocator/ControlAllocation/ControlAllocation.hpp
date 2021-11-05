@@ -143,6 +143,13 @@ public:
 	const matrix::Matrix<float, NUM_AXES, NUM_ACTUATORS> &getEffectivenessMatrix() const { return _effectiveness; }
 
 	/**
+	 * Set the airspeed
+	 *
+	 * @param airspeed Vehicle's airspeed
+	 */
+	virtual void setAirspeed(const float airspeed) { _airspeed = airspeed; }
+
+	/**
 	 * Set the minimum actuator values
 	 *
 	 * @param actuator_min Minimum actuator values
@@ -216,4 +223,5 @@ protected:
 	matrix::Vector<float, NUM_AXES> _control_allocated;  	//< Allocated control
 	matrix::Vector<float, NUM_AXES> _control_trim;  	//< Control at trim actuator values
 	int _num_actuators{0};
+	float _airspeed{0};
 };
