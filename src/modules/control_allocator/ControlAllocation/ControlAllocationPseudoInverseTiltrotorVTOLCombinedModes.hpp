@@ -53,59 +53,7 @@ public:
 	ControlAllocationPseudoInverseTiltrotorVTOLCombinedModes(): ModuleParams(nullptr) {}
 	virtual ~ControlAllocationPseudoInverseTiltrotorVTOLCombinedModes() = default;
 
-	virtual void allocate() override {
-        float deg2rad = (float) M_PI / 180.f;
-        float tilt_servo_max = _param_ca_tlt_srvo_max.get() * deg2rad;
-
-        //Compute new gains if needed
-        updatePseudoInverse();
-
-        // Allocate
-        matrix::Vector<float, NUM_ACTUATORS> mix_solution =
-            _actuator_trim + _mix * (_control_sp - _control_trim);
-
-        // Actuator setpoints are solved based on the mix solution
-        // Throttle and servo angles are calculated from x and z components
-        _actuator_sp(0) = sqrt(mix_solution(0) * mix_solution(0) + mix_solution(1) * mix_solution(1));
-        _actuator_sp(1) = sqrt(mix_solution(2) * mix_solution(2) + mix_solution(3) * mix_solution(3));
-        _actuator_sp(2) = mix_solution(4);
-        _actuator_sp(3) = 0.f;
-        _actuator_sp(4) = atan2f(mix_solution(1), mix_solution(0)) / (tilt_servo_max);
-        _actuator_sp(5) = 1.f - atan2f(mix_solution(3), mix_solution(2)) / (tilt_servo_max);
-        _actuator_sp(6) = mix_solution(5);
-        _actuator_sp(7) = mix_solution(6);
-
-
-        // Clip
-        clipActuatorSetpoint(_actuator_sp);
-
-        // clipped_mix_solution performs backwards calculations to find mix_solution as adjusted for
-        // clipped actuator values
-        matrix::Vector<float, NUM_ACTUATORS> clipped_mix_solution;
-        clipped_mix_solution(0) = _actuator_sp(0) /
-            (float) sqrt(1 + pow(tanf(tilt_servo_max * _actuator_sp(4)), 2));
-        clipped_mix_solution(1) = _actuator_sp(0) /
-            (float) sqrt(1 + 1 / pow(tanf(tilt_servo_max * _actuator_sp(4)), 2));
-        clipped_mix_solution(2) = _actuator_sp(1) /
-            (float) sqrt(1 + pow(tanf(tilt_servo_max * (1.f - _actuator_sp(5))), 2));
-        clipped_mix_solution(3) = _actuator_sp(1) /
-            (float) sqrt(1 + 1 / pow(tanf(tilt_servo_max * (1.f - _actuator_sp(5))), 2));
-        clipped_mix_solution(4) = _actuator_sp(2);
-        clipped_mix_solution(5) = _actuator_sp(6);
-        clipped_mix_solution(6) = _actuator_sp(7);
-
-        // Sign information is lost from squaring/taking the square root so we infer the clipped_mix_solution
-        // has the same sign as the original mix_solution
-        if ((mix_solution(2) < 0 && clipped_mix_solution(2) > 0) ||
-            (mix_solution(2) > 0 && clipped_mix_solution(2) < 0))
-            clipped_mix_solution(2) *= -1;
-        if ((mix_solution(0) < 0 && clipped_mix_solution(0) > 0) ||
-            (mix_solution(0) > 0 && clipped_mix_solution(0) < 0))
-            clipped_mix_solution(0) *= -1;
-
-        // Compute achieved control
-        _control_allocated = _effectiveness * clipped_mix_solution;
-    }
+	virtual void allocate() override;
 
 protected:
 
