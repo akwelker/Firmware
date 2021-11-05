@@ -67,6 +67,7 @@ px4_add_romfs_files(
 	1043_standard_vtol_drop
 	1043_standard_vtol_drop.post
 	1044_convergence_ctrlalloc
+	1045_quadplane_ctrlalloc
 	1060_rover
 	1061_r1_rover
 	1062_tf-r1

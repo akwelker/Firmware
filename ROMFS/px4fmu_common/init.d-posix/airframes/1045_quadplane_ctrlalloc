@@ -1,0 +1,149 @@
+#!/bin/sh
+#
+# @name Quadplane with Control Allocation
+#
+# @type Standard VTOL
+# @class VTOL
+#
+# @output MAIN1 Motor front right
+# @output MAIN2 Motor front left
+# @output MAIN3 Motor back right
+# @output MAIN4 Motor back left
+# @output MAIN5 Motor push
+# @output MAIN6 Empty
+# @output MAIN7 Elevon right
+# @output MAIN8 Elevon left
+#
+# @maintainer Mason Peterson <mbpeterson70@gmail.com>
+# @board px4_fmu-v2 exclude
+# @board bitcraze_crazyflie exclude
+
+. ${R}etc/init.d/rc.ctrlalloc
+. ${R}etc/init.d/rc.vtol_defaults
+
+set VEHICLE_TYPE vtol_combmodes
+set MAV_TYPE 22
+
+set MIXER direct
+set PWM_OUT 12345
+
+set MIXER_AUX direct_aux
+set PWM_AUX_OUT 12345
+
+# Necessary to connect correctly with AirSim
+param set ASPD_PRIMARY 0
+
+param set-default MPC_USE_HTE 0
+param set-default MPC_THR_HOVER 0.5
+
+###############################################################################
+#                               Attitude Control                              #
+###############################################################################
+
+param set-default MC_ROLL_P   6
+param set-default MC_PITCH_P  6
+param set-default MC_YAW_P    2.5
+param set-default MC_YAWRATE_MAX 120
+param set-default MC_PITCHRATE_MAX 120
+param set-default MC_ROLLRATE_MAX 120
+param set-default MC_YAW_WEIGHT 1.0
+
+###############################################################################
+#                           Angular Velocity Control                          #
+###############################################################################
+
+param set-default VM_MASS 5.81
+param set-default VM_INERTIA_XX 0.335
+param set-default VM_INERTIA_YY 0.140
+param set-default VM_INERTIA_ZZ 0.40
+param set-default VM_INERTIA_XZ 0.0004
+
+param set-default AVC_X_P 18.0
+param set-default AVC_Y_P 20.0
+param set-default AVC_Z_P 15.0
+param set-default AVC_X_I 0.1
+param set-default AVC_Y_I 0.1
+param set-default AVC_Z_I 0.0
+param set-default AVC_X_D 0.001
+param set-default AVC_Y_D 0.001
+param set-default AVC_Y_D 0.001
+
+###############################################################################
+#                              Control Allocation                             #
+###############################################################################
+
+param set-default CA_AIRFRAME 4
+param set-default CA_METHOD 1
+
+param set-default CA_ACT0_MIN 0.0
+param set-default CA_ACT0_MAX 1.0
+param set-default CA_ACT1_MIN 0.0
+param set-default CA_ACT1_MAX 1.0
+param set-default CA_ACT2_MIN 0.0
+param set-default CA_ACT2_MAX 1.0
+param set-default CA_ACT3_MIN 0.0
+param set-default CA_ACT3_MAX 1.0
+param set-default CA_ACT4_MIN 0.0
+param set-default CA_ACT4_MAX 1.0
+param set-default CA_ACT5_MIN 0.0
+param set-default CA_ACT5_MAX 1.0
+param set-default CA_ACT6_MIN -1.0
+param set-default CA_ACT6_MAX 1.0
+param set-default CA_ACT7_MIN -1.0
+param set-default CA_ACT7_MAX 1.0
+
+# Rotor parameters
+
+param set-default CA_MC_R0_AX 0.0
+param set-default CA_MC_R0_AY 0.0
+param set-default CA_MC_R0_AZ -1.0
+param set-default CA_MC_R0_PX 0.49
+param set-default CA_MC_R0_PY 0.37
+param set-default CA_MC_R0_PZ 0.0
+# param set-default CA_MC_R0_CT 27.3
+param set-default CA_MC_R0_CT 27.19
+param set-default CA_MC_R0_KM 0.30 #
+
+param set-default CA_MC_R1_AX 0.0
+param set-default CA_MC_R1_AY 0.0
+param set-default CA_MC_R1_AZ -1.0
+param set-default CA_MC_R1_PX 0.49
+param set-default CA_MC_R1_PY -0.37
+param set-default CA_MC_R1_PZ 0.0
+param set-default CA_MC_R1_CT 27.19
+param set-default CA_MC_R1_KM -0.30 #
+
+param set-default CA_MC_R2_AX 0.0
+param set-default CA_MC_R2_AY 0.0
+param set-default CA_MC_R2_AZ -1.0
+param set-default CA_MC_R2_PX -0.45
+param set-default CA_MC_R2_PY 0.37
+param set-default CA_MC_R2_PZ 0.0
+param set-default CA_MC_R2_CT 28.31
+param set-default CA_MC_R2_KM -0.30 #
+
+param set-default CA_MC_R3_AX 0.0
+param set-default CA_MC_R3_AY 0.0
+param set-default CA_MC_R3_AZ -1.0
+param set-default CA_MC_R3_PX -0.45
+param set-default CA_MC_R3_PY -0.37
+param set-default CA_MC_R3_PZ 0.0
+param set-default CA_MC_R3_CT 28.31
+param set-default CA_MC_R3_KM 0.30 #
+
+param set-default CA_MC_R4_AX 1.0
+param set-default CA_MC_R4_AY 0.0
+param set-default CA_MC_R4_AZ 0.0
+param set-default CA_MC_R4_PX -0.41
+param set-default CA_MC_R4_PY 0.0
+param set-default CA_MC_R4_PZ 0.0
+param set-default CA_MC_R4_CT 20.87
+param set-default CA_MC_R4_KM 0.35 #0.35
+
+# Frame parameters
+
+param set-default CA_WING_AREA 0.96
+param set-default CA_CHORD_LEN 0.378
+param set-default CA_SPAN 2.5
+param set-default CA_AERO_MOMENT_L 0.202
+param set-default CA_AERO_MOMENT_M -0.325
