@@ -459,6 +459,16 @@ matrix::Vector<float, VTOL_NUM_ACTUATORS> cwiseDivide(
 }
 
 inline
+float l1norm(matrix::Vector<float, VTOL_NUM_ACTUATORS> v)
+{
+    float sum = 0.f;
+    for (size_t i = 0; i<VTOL_NUM_ACTUATORS; i++) {
+        sum += std::abs(v(i));
+    }
+    return sum;
+}
+
+inline
 matrix::Matrix<float, VTOL_NUM_ACTUATORS, 1> getMatrix(
     matrix::Vector<float, VTOL_NUM_ACTUATORS> v)
 {
@@ -600,7 +610,7 @@ bool bfgs_impl(
     grad = grad_p;
 
     grad_err = grad_p.norm();
-    float rel_sol_change = cwiseDivide(s, (x.abs() + 1.0e-08)).l1norm();
+    float rel_sol_change = l1norm(cwiseDivide(s, (x.abs() + 1.0e-08)));
 
     if (grad_err <= grad_err_tol) {
         init_out_vals = x_p;
@@ -630,7 +640,7 @@ bool bfgs_impl(
         }
 
         grad_err = grad_p.norm();
-        rel_sol_change = cwiseDivide(s, (x.abs() + 1.0e-08)).l1norm();
+        rel_sol_change = l1norm(cwiseDivide(s, (x.abs() + 1.0e-08)));
 
         x = x_p;
         grad = grad_p;
