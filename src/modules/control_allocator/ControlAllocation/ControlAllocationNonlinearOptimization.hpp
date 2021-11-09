@@ -111,7 +111,6 @@ protected:
 	matrix::Vector<float, 7> _initGuessGuardCnt;
 
 	bool _mix_update_needed{false};
-	bool _set_init_actuators{true};
 	matrix::Quatf _q{1.f, 0.f, 0.f, 0.f};
 	matrix::Vector3f _interial_velocity{0.f, 0.f, 0.f};
 	float _air_density{1.225f};

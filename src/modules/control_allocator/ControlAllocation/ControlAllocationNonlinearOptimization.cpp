@@ -547,6 +547,9 @@ matrix::Vector<float, VTOL_NUM_ACTUATORS> computeNonlinearOpt(
     return x0;
 }
 
+/**
+ * initialGuessGuard guards against an actuator becoming locked at saturation
+ */
 void
 ControlAllocationNonlinearOptimization::initialGuessGuard() {
     for (uint8_t i = 0; i < VTOL_NUM_ACTUATORS; ++i) {
@@ -573,14 +576,12 @@ ControlAllocationNonlinearOptimization::setEffectivenessMatrix(
 void
 ControlAllocationNonlinearOptimization::allocate()
 {
-
-    float tilt_servo_max = 115.f * (float) M_PI / 180.f;
-    // float tilt_servo_min = 0.f * (float) M_PI / 180.f;
+    float elevon_angle_max = 45.f * (float) M_PI / 180.f;
 
 	matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired;
 	matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueAchieved;
 	matrix::Vector<float, VTOL_NUM_ACTUATORS> solution;
-	matrix::Vector3f vBody = _q.conjugate_inversed(_interial_velocity); //matrix::Vector3f(0.f, 0.f, 0.f);//
+	matrix::Vector3f vBody = _q.conjugate_inversed(_interial_velocity);
 
 	thrustTorqueDesired(0) = _control_sp(3);
 	thrustTorqueDesired(1) = _control_sp(5);
@@ -589,27 +590,14 @@ ControlAllocationNonlinearOptimization::allocate()
 	thrustTorqueDesired(4) = _control_sp(2);
 
     initialGuessGuard();
-    if (!_set_init_actuators) {
-		solution(0) = _actuator_sp(0);
-		solution(1) = _actuator_sp(1);
-		solution(2) = _actuator_sp(2);
-		solution(3) = _actuator_sp(4) * VTOL_SERVO_MAX;
-		solution(4) = (1.f - _actuator_sp(5)) * VTOL_SERVO_MAX;
-		solution(5) = -_actuator_sp(6); // positive right elevon value makes elevon go up. Needs to be negated
-		solution(6) = _actuator_sp(7);
-        if (solution(3) > tilt_servo_max)
-            solution(3) = tilt_servo_max;
-        if (solution(4) > tilt_servo_max)
-            solution(4) = tilt_servo_max;
-	} else {
-		solution(0) = 0.5f;
-		solution(1) = 0.5f;
-		solution(2) = 0.5f;
-		solution(3) = 0.5f;
-		solution(4) = 0.5f;
-		solution(5) = 0.0f;
-		solution(6) = 0.0f;
-	}
+
+    solution(0) = _actuator_sp(0);
+    solution(1) = _actuator_sp(1);
+    solution(2) = _actuator_sp(2);
+    solution(3) = _actuator_sp(4) * VTOL_SERVO_MAX;
+    solution(4) = (1.f - _actuator_sp(5)) * VTOL_SERVO_MAX;
+    solution(5) = -_actuator_sp(6) * elevon_angle_max; // positive right elevon value makes elevon go up. Needs to be negated
+    solution(6) = _actuator_sp(7) * elevon_angle_max;
 
     // Set up ControlAllocationData
     ControlAllocationData controlAllocationData;
@@ -648,8 +636,8 @@ ControlAllocationNonlinearOptimization::allocate()
 	_actuator_sp(3) = 0.f;
 	_actuator_sp(4) = solution(3) / VTOL_SERVO_MAX;
 	_actuator_sp(5) = 1.f - (solution(4) / VTOL_SERVO_MAX);
-	_actuator_sp(6) = -solution(5); // positive right elevon value makes elevon go up. Needs to be negated
-	_actuator_sp(7) = solution(6);
+	_actuator_sp(6) = -solution(5) / elevon_angle_max; // positive right elevon value makes elevon go up. Needs to be negated
+	_actuator_sp(7) = solution(6) / elevon_angle_max;
 
 	_control_allocated(0) = thrustTorqueAchieved(2);
 	_control_allocated(1) = thrustTorqueAchieved(3);
@@ -658,13 +646,7 @@ ControlAllocationNonlinearOptimization::allocate()
 	_control_allocated(4) = 0.f;
 	_control_allocated(5) = thrustTorqueAchieved(1);
 
-    // hackish. algorithm should start when an arm command is received instead
-	if (thrustTorqueDesired(0) < 1E-30f && thrustTorqueDesired(0) > -1E-30f &&
-		thrustTorqueDesired(1) < 1E-30f && thrustTorqueDesired(1) > -1E-30f)
-		_set_init_actuators = _set_init_actuators;
-	else
-		_set_init_actuators = false;
-
+    // BFGS algorithm can get stuck at saturation limits sometimes. initGuessGuard helps protect against that
     for (uint8_t i = 0; i < VTOL_NUM_ACTUATORS; ++i) {
         if (_actuator_sp(i) > (_actuator_max(i) - ((_actuator_max(i) - _actuator_min(i)) * 0.01f)) ||
             _actuator_sp(i) < (_actuator_min(i) + ((_actuator_max(i) - _actuator_min(i)) * 0.01f)))
