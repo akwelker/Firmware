@@ -314,3 +314,53 @@ PARAM_DEFINE_FLOAT(CA_ACT14_MAX, 0.0);
  * @group Control Allocation
  */
 PARAM_DEFINE_FLOAT(CA_ACT15_MAX, 0.0);
+
+
+/**
+ * Planform area of the vehicle's wing
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_WING_AREA, 0.0);
+
+/**
+ * Mean chord length of the vehicle's wing
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_CHORD_LEN, 0.0);
+
+/**
+ * Vehicle's wing span
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_SPAN, 0.0);
+
+/**
+ * Nondimensional aerodynamic moment coefficient Cl delta a, coeficient of the body x axis.
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_C_ELL_DELTA_A, 0.018);
+
+/**
+ * Nondimensional aerodynamic moment coefficient Cm delta e, coefficient of the body y axis.
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_C_M_DELTA_E, -0.05);
+
+/**
+ * Nondimensional aerodynamic moment coefficient CL delta e, coefficient of lift.
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_C_L_DELTA_E, 0.2);
+
+/**
+ * Nondimensional aerodynamic moment coefficient CD delta e, coefficient of drag.
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_C_D_DELTA_E, 0.005);

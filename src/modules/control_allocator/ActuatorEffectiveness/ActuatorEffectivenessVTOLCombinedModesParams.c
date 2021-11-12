@@ -39,37 +39,3 @@
  * @author Mason Peterson <mbpeterson70@gmail.com>
  */
 
-/**
- * Planform area of the vehicle's wing
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_WING_AREA, 0.0);
-
-/**
- * Mean chord length of the vehicle's wing
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_CHORD_LEN, 0.0);
-
-/**
- * Vehicle's wing span
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_SPAN, 0.0);
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame x axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_MOMENT_L, 0.0);
-
-/**
- * Nondimensional aerodynamic moment coefficient in the body frame y axis
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_AERO_MOMENT_M, 0.0);

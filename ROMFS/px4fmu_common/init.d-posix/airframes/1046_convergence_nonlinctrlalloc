@@ -41,11 +41,11 @@ param set-default MPC_THR_HOVER 0.5
 ###############################################################################
 
 param set-default MC_PITCH_P  6
-param set-default MC_ROLL_P   6
+param set-default MC_ROLL_P   6.6
 param set-default MC_YAW_P    2.5
-# param set-default MC_YAWRATE_MAX 120
-# param set-default MC_PITCHRATE_MAX 120
-# param set-default MC_ROLLRATE_MAX 120
+param set-default MC_YAWRATE_MAX 120
+param set-default MC_PITCHRATE_MAX 120
+param set-default MC_ROLLRATE_MAX 120
 param set-default MC_YAW_WEIGHT 1.0
 
 ###############################################################################
@@ -58,22 +58,22 @@ param set-default VM_INERTIA_YY 0.025
 param set-default VM_INERTIA_ZZ 0.0282
 param set-default VM_INERTIA_XZ 0.000048
 
-param set-default AVC_X_P 20.0
-param set-default AVC_Y_P 17.0
+param set-default AVC_X_P 16.0
+param set-default AVC_Y_P 16.0
 param set-default AVC_Z_P 15.0
-param set-default AVC_X_I 0.12
-param set-default AVC_Y_I 0.12
-param set-default AVC_Z_I 0.12
-param set-default AVC_X_D 0.001
+param set-default AVC_X_I 0.01
+param set-default AVC_Y_I 0.28
+param set-default AVC_Z_I 0.005
+param set-default AVC_X_D 0.005
 param set-default AVC_Y_D 0.001
-param set-default AVC_Y_D 0.001
+param set-default AVC_Z_D 0.001
 
 ###############################################################################
 #                              Control Allocation                             #
 ###############################################################################
 
 param set-default CA_AIRFRAME 3
-param set-default CA_METHOD 2
+param set-default CA_METHOD 3
 
 param set-default CA_ACT0_MIN 0.0
 param set-default CA_ACT0_MAX 1.0
@@ -93,15 +93,11 @@ param set-default CA_ACT7_MIN -1.0
 param set-default CA_ACT7_MAX 1.0
 
 param set-default CA_MC_R0_AY 0.0
-param set-default CA_MC_R0_CT 3.8235
-param set-default CA_MC_R0_KM 0.1657
 param set-default CA_MC_R0_PX 0.12
 param set-default CA_MC_R0_PY 0.2
 param set-default CA_MC_R0_PZ 0.0
 
 param set-default CA_MC_R1_AY 0.0
-param set-default CA_MC_R1_CT 3.8235
-param set-default CA_MC_R1_KM -0.1657
 param set-default CA_MC_R1_PX 0.12
 param set-default CA_MC_R1_PY -0.2
 param set-default CA_MC_R1_PZ 0.0
@@ -109,8 +105,6 @@ param set-default CA_MC_R1_PZ 0.0
 param set-default CA_MC_R2_AX 0.0
 param set-default CA_MC_R2_AY 0.0
 param set-default CA_MC_R2_AZ -1.0
-param set-default CA_MC_R2_CT 3.0427
-param set-default CA_MC_R2_KM 0.0428
 param set-default CA_MC_R2_PX -0.24
 param set-default CA_MC_R2_PY 0.0
 param set-default CA_MC_R2_PZ 0.0
@@ -120,4 +114,48 @@ param set-default CA_CHORD_LEN 0.3305
 param set-default CA_SPAN 1.4224
 param set-default CA_C_ELL_DELTA_A 0.018
 param set-default CA_C_M_DELTA_E -0.05
-param set-default CA_TLT_SRVO_MAX 115.0
+param set-default CA_C_L_DELTA_E 0.2
+param set-default CA_C_D_DELTA_E 0.005
+
+param set-default CA_TLT_SRVO_MIN 0
+param set-default CA_TLT_SRVO_MAX 115
+param set-default CA_VMAX 11.1
+
+param set-default CA_MAX_F_POS_X 18.0
+param set-default CA_MAX_F_NEG_X -4.34
+param set-default CA_MAX_F_POS_Z 100.0
+param set-default CA_MAX_F_NEG_Z -14.0
+param set-default CA_NL_ITER_MAX 5
+
+param set-default CA_ROT0_CQ0 0.0088
+param set-default CA_ROT0_CQ1 0.0129
+param set-default CA_ROT0_CQ2 -0.0216
+param set-default CA_ROT0_CT0 0.1167
+param set-default CA_ROT0_CT1 0.0144
+param set-default CA_ROT0_CT2 -0.1480
+param set-default CA_ROT0_PROP_D .1778
+param set-default CA_ROT0_KV 1450.0
+param set-default CA_ROT0_RES 0.3
+param set-default CA_ROT0_I0 0.83
+
+param set-default CA_ROT1_CQ0 0.0088
+param set-default CA_ROT1_CQ1 0.0129
+param set-default CA_ROT1_CQ2 -0.0216
+param set-default CA_ROT1_CT0 0.1167
+param set-default CA_ROT1_CT1 0.0144
+param set-default CA_ROT1_CT2 -0.1480
+param set-default CA_ROT1_PROP_D .1778
+param set-default CA_ROT1_KV 1450.0
+param set-default CA_ROT1_RES 0.3
+param set-default CA_ROT1_I0 0.83
+
+param set-default CA_ROT2_CQ0 0.0216
+param set-default CA_ROT2_CQ1 0.0292
+param set-default CA_ROT2_CQ2 -0.0368
+param set-default CA_ROT2_CT0 0.2097
+param set-default CA_ROT2_CT1 0.0505
+param set-default CA_ROT2_CT2 -0.1921
+param set-default CA_ROT2_PROP_D 0.1397
+param set-default CA_ROT2_KV 1550.0
+param set-default CA_ROT2_RES 0.4
+param set-default CA_ROT2_I0  0.6

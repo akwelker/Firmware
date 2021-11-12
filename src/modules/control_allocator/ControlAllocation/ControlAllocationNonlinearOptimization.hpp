@@ -46,11 +46,12 @@
 #pragma once
 
 #include "ControlAllocation.hpp"
+#include <px4_platform_common/module_params.h>
 
-class ControlAllocationNonlinearOptimization: public ControlAllocation
+class ControlAllocationNonlinearOptimization: public ControlAllocation, public ModuleParams
 {
 public:
-	ControlAllocationNonlinearOptimization() = default;
+	ControlAllocationNonlinearOptimization();
 	virtual ~ControlAllocationNonlinearOptimization() = default;
 
 	virtual void allocate() override;
@@ -102,6 +103,26 @@ public:
 
 protected:
 
+	typedef struct {
+		float position_x;
+		float position_y;
+		float position_z;
+		float axis_x;
+		float axis_y;
+		float axis_z;
+		float CQ0;
+		float CQ1;
+		float CQ2;
+		float CT0;
+		float CT1;
+		float CT2;
+		float prop_diam;
+		float KV;
+		float KQ;
+		float resistance;
+		float i0;
+	} RotorParams;
+
 	/**
 	 * Guards against actuators getting stuck at their limits. A little hacky.
 	 */
@@ -114,5 +135,78 @@ protected:
 	matrix::Quatf _q{1.f, 0.f, 0.f, 0.f};
 	matrix::Vector3f _interial_velocity{0.f, 0.f, 0.f};
 	float _air_density{1.225f};
+	RotorParams _rotor_params[3];
+
+	DEFINE_PARAMETERS(
+		(ParamFloat<px4::params::CA_MC_R0_PX>) _param_ca_mc_r0_px,
+		(ParamFloat<px4::params::CA_MC_R0_PY>) _param_ca_mc_r0_py,
+		(ParamFloat<px4::params::CA_MC_R0_PZ>) _param_ca_mc_r0_pz,
+		(ParamFloat<px4::params::CA_MC_R0_AX>) _param_ca_mc_r0_ax,
+		(ParamFloat<px4::params::CA_MC_R0_AY>) _param_ca_mc_r0_ay,
+		(ParamFloat<px4::params::CA_MC_R0_AZ>) _param_ca_mc_r0_az,
+
+		(ParamFloat<px4::params::CA_MC_R1_PX>) _param_ca_mc_r1_px,
+		(ParamFloat<px4::params::CA_MC_R1_PY>) _param_ca_mc_r1_py,
+		(ParamFloat<px4::params::CA_MC_R1_PZ>) _param_ca_mc_r1_pz,
+		(ParamFloat<px4::params::CA_MC_R1_AX>) _param_ca_mc_r1_ax,
+		(ParamFloat<px4::params::CA_MC_R1_AY>) _param_ca_mc_r1_ay,
+		(ParamFloat<px4::params::CA_MC_R1_AZ>) _param_ca_mc_r1_az,
+
+		(ParamFloat<px4::params::CA_MC_R2_PX>) _param_ca_mc_r2_px,
+		(ParamFloat<px4::params::CA_MC_R2_PY>) _param_ca_mc_r2_py,
+		(ParamFloat<px4::params::CA_MC_R2_PZ>) _param_ca_mc_r2_pz,
+		(ParamFloat<px4::params::CA_MC_R2_AX>) _param_ca_mc_r2_ax,
+		(ParamFloat<px4::params::CA_MC_R2_AY>) _param_ca_mc_r2_ay,
+		(ParamFloat<px4::params::CA_MC_R2_AZ>) _param_ca_mc_r2_az,
+
+		(ParamFloat<px4::params::CA_WING_AREA>) _param_ca_wing_area,
+		(ParamFloat<px4::params::CA_CHORD_LEN>) _param_ca_chord_len,
+		(ParamFloat<px4::params::CA_SPAN>) _param_ca_span,
+		(ParamFloat<px4::params::CA_C_ELL_DELTA_A>) _param_ca_C_ell_delta_a,
+		(ParamFloat<px4::params::CA_C_M_DELTA_E>) _param_ca_C_m_delta_e,
+		(ParamFloat<px4::params::CA_C_L_DELTA_E>) _param_ca_C_L_delta_e,
+		(ParamFloat<px4::params::CA_C_D_DELTA_E>) _param_ca_C_D_delta_e,
+
+		(ParamFloat<px4::params::CA_TLT_SRVO_MIN>) _param_ca_tlt_servo_min,
+		(ParamFloat<px4::params::CA_TLT_SRVO_MAX>) _param_ca_tlt_servo_max,
+		(ParamFloat<px4::params::CA_VMAX>) _param_ca_vmax,
+		(ParamFloat<px4::params::CA_MAX_F_POS_X>) _param_ca_f_pos_x,
+		(ParamFloat<px4::params::CA_MAX_F_NEG_X>) _param_ca_f_neg_x,
+		(ParamFloat<px4::params::CA_MAX_F_POS_Z>) _param_ca_f_pos_z,
+		(ParamFloat<px4::params::CA_MAX_F_NEG_Z>) _param_ca_f_neg_z,
+		(ParamInt<px4::params::CA_NL_ITER_MAX>) _param_ca_nonlin_iter_max,
+		(ParamFloat<px4::params::CA_ROT0_CQ0>) _param_ca_rot0_CQ0,
+		(ParamFloat<px4::params::CA_ROT0_CQ1>) _param_ca_rot0_CQ1,
+		(ParamFloat<px4::params::CA_ROT0_CQ2>) _param_ca_rot0_CQ2,
+		(ParamFloat<px4::params::CA_ROT0_CT0>) _param_ca_rot0_CT0,
+		(ParamFloat<px4::params::CA_ROT0_CT1>) _param_ca_rot0_CT1,
+		(ParamFloat<px4::params::CA_ROT0_CT2>) _param_ca_rot0_CT2,
+		(ParamFloat<px4::params::CA_ROT0_PROP_D>) _param_ca_rot0_prop_diam,
+		(ParamFloat<px4::params::CA_ROT0_KV>) _param_ca_rot0_KV,
+		(ParamFloat<px4::params::CA_ROT0_RES>) _param_ca_rot0_res,
+		(ParamFloat<px4::params::CA_ROT0_I0>) _param_ca_rot0_i0,
+
+		(ParamFloat<px4::params::CA_ROT1_CQ0>) _param_ca_rot1_CQ0,
+		(ParamFloat<px4::params::CA_ROT1_CQ1>) _param_ca_rot1_CQ1,
+		(ParamFloat<px4::params::CA_ROT1_CQ2>) _param_ca_rot1_CQ2,
+		(ParamFloat<px4::params::CA_ROT1_CT0>) _param_ca_rot1_CT0,
+		(ParamFloat<px4::params::CA_ROT1_CT1>) _param_ca_rot1_CT1,
+		(ParamFloat<px4::params::CA_ROT1_CT2>) _param_ca_rot1_CT2,
+		(ParamFloat<px4::params::CA_ROT1_PROP_D>) _param_ca_rot1_prop_diam,
+		(ParamFloat<px4::params::CA_ROT1_KV>) _param_ca_rot1_KV,
+		(ParamFloat<px4::params::CA_ROT1_RES>) _param_ca_rot1_res,
+		(ParamFloat<px4::params::CA_ROT1_I0>) _param_ca_rot1_i0,
+
+		(ParamFloat<px4::params::CA_ROT0_CQ0>) _param_ca_rot2_CQ0,
+		(ParamFloat<px4::params::CA_ROT0_CQ1>) _param_ca_rot2_CQ1,
+		(ParamFloat<px4::params::CA_ROT0_CQ2>) _param_ca_rot2_CQ2,
+		(ParamFloat<px4::params::CA_ROT0_CT0>) _param_ca_rot2_CT0,
+		(ParamFloat<px4::params::CA_ROT0_CT1>) _param_ca_rot2_CT1,
+		(ParamFloat<px4::params::CA_ROT0_CT2>) _param_ca_rot2_CT2,
+		(ParamFloat<px4::params::CA_ROT0_PROP_D>) _param_ca_rot2_prop_diam,
+		(ParamFloat<px4::params::CA_ROT0_KV>) _param_ca_rot2_KV,
+		(ParamFloat<px4::params::CA_ROT0_RES>) _param_ca_rot2_res,
+		(ParamFloat<px4::params::CA_ROT0_I0>) _param_ca_rot2_i0
+	)
 
 };

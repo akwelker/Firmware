@@ -118,7 +118,7 @@ protected:
 		(ParamFloat<px4::params::CA_WING_AREA>) _param_ca_wing_area,
 		(ParamFloat<px4::params::CA_CHORD_LEN>) _param_ca_chord_len,
 		(ParamFloat<px4::params::CA_SPAN>) _param_ca_span,
-		(ParamFloat<px4::params::CA_AERO_MOMENT_L>) _param_ca_aero_moment_l,
-		(ParamFloat<px4::params::CA_AERO_MOMENT_M>) _param_ca_aero_moment_m
+		(ParamFloat<px4::params::CA_C_ELL_DELTA_A>) _param_ca_c_l_delta_a,
+		(ParamFloat<px4::params::CA_C_M_DELTA_E>) _param_ca_c_m_delta_e
 	)
 };

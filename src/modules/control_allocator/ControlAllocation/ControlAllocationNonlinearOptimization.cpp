@@ -54,7 +54,6 @@ using std::pow;
 #define CA_ELEVON_LEFT 6
 
 // VTOL Vehicle parameters
-#define VTOL_RHO 1.225f //1.2682f airsim uses a different air density
 #define VTOL_NCELLS 3
 #define VTOL_V_MAX (3.7f * VTOL_NCELLS)
 #define VTOL_S_WING 0.2589f
@@ -654,5 +653,64 @@ ControlAllocationNonlinearOptimization::allocate()
         else
             _initGuessGuardCnt(i) = 0;
     }
+
+}
+
+ControlAllocationNonlinearOptimization::ControlAllocationNonlinearOptimization():
+	ModuleParams(nullptr)
+{
+    _rotor_params[0].position_x = _param_ca_mc_r0_px.get();
+    _rotor_params[0].position_y = _param_ca_mc_r0_py.get();
+    _rotor_params[0].position_z = _param_ca_mc_r0_pz.get();
+    _rotor_params[0].axis_x = _param_ca_mc_r0_ax.get();
+    _rotor_params[0].axis_y = _param_ca_mc_r0_ay.get();
+    _rotor_params[0].axis_z = _param_ca_mc_r0_az.get();
+    _rotor_params[0].CQ0 = _param_ca_rot0_CQ0.get();
+    _rotor_params[0].CQ1 = _param_ca_rot0_CQ1.get();
+    _rotor_params[0].CQ2 = _param_ca_rot0_CQ2.get();
+    _rotor_params[0].CT0 = _param_ca_rot0_CT0.get();
+    _rotor_params[0].CT1 = _param_ca_rot0_CT1.get();
+    _rotor_params[0].CT2 = _param_ca_rot0_CT2.get();
+    _rotor_params[0].prop_diam = _param_ca_rot0_prop_diam.get();
+    _rotor_params[0].KV = _param_ca_rot0_KV.get();
+    _rotor_params[0].KQ = (1.f / _rotor_params[0].KV) * 60.f / (2.f * (float) M_PI);
+    _rotor_params[0].resistance = _param_ca_rot0_res.get();
+    _rotor_params[0].i0 = _param_ca_rot0_i0.get();
+
+    _rotor_params[1].position_x = _param_ca_mc_r1_px.get();
+    _rotor_params[1].position_y = _param_ca_mc_r1_py.get();
+    _rotor_params[1].position_z = _param_ca_mc_r1_pz.get();
+    _rotor_params[1].axis_x = _param_ca_mc_r1_ax.get();
+    _rotor_params[1].axis_y = _param_ca_mc_r1_ay.get();
+    _rotor_params[1].axis_z = _param_ca_mc_r1_az.get();
+    _rotor_params[1].CQ0 = _param_ca_rot1_CQ0.get();
+    _rotor_params[1].CQ1 = _param_ca_rot1_CQ1.get();
+    _rotor_params[1].CQ2 = _param_ca_rot1_CQ2.get();
+    _rotor_params[1].CT0 = _param_ca_rot1_CT0.get();
+    _rotor_params[1].CT1 = _param_ca_rot1_CT1.get();
+    _rotor_params[1].CT2 = _param_ca_rot1_CT2.get();
+    _rotor_params[1].prop_diam = _param_ca_rot1_prop_diam.get();
+    _rotor_params[1].KV = _param_ca_rot1_KV.get();
+    _rotor_params[1].KQ = (1.f / _rotor_params[1].KV) * 60.f / (2.f * (float) M_PI);
+    _rotor_params[1].resistance = _param_ca_rot1_res.get();
+    _rotor_params[1].i0 = _param_ca_rot1_i0.get();
+
+    _rotor_params[2].position_x = _param_ca_mc_r2_px.get();
+    _rotor_params[2].position_y = _param_ca_mc_r2_py.get();
+    _rotor_params[2].position_z = _param_ca_mc_r2_pz.get();
+    _rotor_params[2].axis_x = _param_ca_mc_r2_ax.get();
+    _rotor_params[2].axis_y = _param_ca_mc_r2_ay.get();
+    _rotor_params[2].axis_z = _param_ca_mc_r2_az.get();
+    _rotor_params[2].CQ0 = _param_ca_rot2_CQ0.get();
+    _rotor_params[2].CQ1 = _param_ca_rot2_CQ1.get();
+    _rotor_params[2].CQ2 = _param_ca_rot2_CQ2.get();
+    _rotor_params[2].CT0 = _param_ca_rot2_CT0.get();
+    _rotor_params[2].CT1 = _param_ca_rot2_CT1.get();
+    _rotor_params[2].CT2 = _param_ca_rot2_CT2.get();
+    _rotor_params[2].prop_diam = _param_ca_rot2_prop_diam.get();
+    _rotor_params[2].KV = _param_ca_rot2_KV.get();
+    _rotor_params[2].KQ = (1.f / _rotor_params[2].KV) * 60.f / (2.f * (float) M_PI);
+    _rotor_params[2].resistance = _param_ca_rot2_res.get();
+    _rotor_params[2].i0 = _param_ca_rot2_i0.get();
 
 }

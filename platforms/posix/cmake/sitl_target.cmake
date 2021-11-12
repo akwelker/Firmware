@@ -144,6 +144,8 @@ set(models
 	standard_vtol
 	standard_vtol_drop
 	convergence_ctrlalloc
+	quadplane_ctrlalloc
+	convergence_nonlinctrlalloc
 	tailsitter
 	techpod
 	tiltrotor
