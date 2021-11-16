@@ -149,10 +149,29 @@ protected:
 		matrix::Vector<float, VTOL_NUM_ACTUATORS> x0,
 		ControlAllocationData *controlAllocationData, size_t iterMax);
 
+	void
+	getAchievableThrust(
+		matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesired,
+		matrix::Vector<float, VTOL_NUM_ACTUATORS> actuators,
+		ControlAllocationData *controlAllocationData);
+
 	float
 	nonlinearCtrlOptFun(
 		const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
 		matrix::Vector<float, VTOL_NUM_ACTUATORS> *grad_out, void *opt_data);
+
+	static matrix::Vector2f calcElevonForce(struct ControlAllocationData* data);
+	void rotorThrustTorque(float *thrustTorqueDers, float delta, float Va, float airDensity, uint8_t rotorNum);
+	void calcThrustTorqueAchieved(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
+    		float *thrust, float *torque, matrix::Vector2f elevonForceCoefs,
+    		matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
+	void calcThrustTorqueAchieved(
+	    	matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
+	    	matrix::Vector<float, VTOL_NUM_ACTUATORS> x, matrix::Vector3f vBody, float airspeed, float airDensity);
+	void calcThrustTorqueAchievedDer(
+    		matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_AXES> *thrustTorqueAchievedDer,
+    		float *thrust, float *torque, float *thrustDer, float *torqueDer,
+    		matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
 
 	matrix::Matrix<float, NUM_ACTUATORS, NUM_AXES> _mix;
 	matrix::Vector<float, 7> _initGuessGuardCnt;

@@ -114,21 +114,6 @@ using std::pow;
 
 #define ITER_MAX 5
 
-// Forward function declarations
-static matrix::Vector2f calcElevonForce(struct ControlAllocationData* data);
-static void rotorThrustTorque(float *thrustTorqueDers, float delta, float Va, float airDensity, uint8_t rotorNum);
-static void calcThrustTorqueAchieved(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
-    float *thrust, float *torque, matrix::Vector2f elevonForceCoefs,
-    matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
-static void calcThrustTorqueAchieved(
-    matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
-    matrix::Vector<float, VTOL_NUM_ACTUATORS> x, matrix::Vector3f vBody, float airspeed, float airDensity);
-static void calcThrustTorqueAchievedDer(
-    matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_AXES> *thrustTorqueAchievedDer,
-    float *thrust, float *torque, float *thrustDer, float *torqueDer,
-    matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
-static void getAchievableThrust(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesired,
-    matrix::Vector<float, VTOL_NUM_ACTUATORS> actuators, ControlAllocationData *controlAllocationData);
 
 /**
  * Returns the thrust and torque of a given rotor.
@@ -140,7 +125,9 @@ static void getAchievableThrust(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorq
  * Va: airspeed coming into rotor
  * rotorNum: indicates which rotor's thrust and torque should be found
  */
-void rotorThrustTorque(float *thrustTorqueDers, float delta, float Va, float airDensity, uint8_t rotorNum) {
+void
+ControlAllocationNonlinearOptimization::rotorThrustTorque(
+    float *thrustTorqueDers, float delta, float Va, float airDensity, uint8_t rotorNum) {
     float C_Q0;
     float C_Q1;
     float C_Q2;
@@ -222,8 +209,11 @@ void rotorThrustTorque(float *thrustTorqueDers, float delta, float Va, float air
  * x: Actuator setpoints
  * Gamma: Term used to determine elevon effectiveness
  */
-void calcThrustTorqueAchieved(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
-    float *thrust, float *torque, matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma) {
+void
+ControlAllocationNonlinearOptimization::calcThrustTorqueAchieved(
+    matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
+    float *thrust, float *torque, matrix::Vector2f elevonForceCoefs,
+    matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma) {
     float x_0 = std::cos(x(CA_SERVO_RIGHT));
     float z_0 = std::sin(x(CA_SERVO_RIGHT));
     float x_1 = std::cos(x(CA_SERVO_LEFT));
@@ -261,9 +251,10 @@ void calcThrustTorqueAchieved(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorque
  * vBody: velocity in the body frame
  * airspeed: vehicle airspeed
  */
-void calcThrustTorqueAchieved(
-    	matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
-    	matrix::Vector<float, VTOL_NUM_ACTUATORS> x, matrix::Vector3f vBody, float airspeed, float airDensity)
+void
+ControlAllocationNonlinearOptimization::calcThrustTorqueAchieved(
+    matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
+    matrix::Vector<float, VTOL_NUM_ACTUATORS> x, matrix::Vector3f vBody, float airspeed, float airDensity)
 {
 	float x_0 = std::cos(x(CA_SERVO_RIGHT));
     	float z_0 = std::sin(x(CA_SERVO_RIGHT));
@@ -305,7 +296,8 @@ void calcThrustTorqueAchieved(
  * x: Actuator setpoints
  * Gamma: Term used to determine elevon effectiveness
  */
-void calcThrustTorqueAchievedDer(
+void
+ControlAllocationNonlinearOptimization::calcThrustTorqueAchievedDer(
     matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_AXES> *thrustTorqueAchievedDer,
     float *thrust, float *torque, float *thrustDer, float *torqueDer,
     matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma) {
@@ -443,7 +435,8 @@ ControlAllocationNonlinearOptimization::nonlinearCtrlOptFun(
  * @returns 2-dimensional elevon force vector representing the force produced
  * by each vector.
  */
-matrix::Vector2f calcElevonForce(struct ControlAllocationData *data) {
+matrix::Vector2f
+ControlAllocationNonlinearOptimization::calcElevonForce(struct ControlAllocationData *data) {
     float elevonLiftCoef = data->Gamma * VTOL_C_L_DELTA_E;
     float elevonDragCoef = data->Gamma * VTOL_C_D_DELTA_E;
     float alpha;
@@ -463,8 +456,11 @@ matrix::Vector2f calcElevonForce(struct ControlAllocationData *data) {
  * @param thrustTorqueDesired will be updated with new thrustTorqueDesired
  * @param actuators current actuator setpoints used to calculate lift and drag forces
  */
-void getAchievableThrust(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesired,
-    matrix::Vector<float, VTOL_NUM_ACTUATORS> actuators, ControlAllocationData *controlAllocationData) {
+void
+ControlAllocationNonlinearOptimization::getAchievableThrust(
+    matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesired,
+    matrix::Vector<float, VTOL_NUM_ACTUATORS> actuators,
+    ControlAllocationData *controlAllocationData) {
     float tilt_servo_max = 115.f * (float) M_PI / 180.f;
     float tilt_servo_min = 0.f * (float) M_PI / 180.f;
 
