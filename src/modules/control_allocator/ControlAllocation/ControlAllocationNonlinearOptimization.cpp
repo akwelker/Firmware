@@ -42,6 +42,7 @@
 #include "ControlAllocationNonlinearOptimization.hpp"
 #include "bfgs_optimization.hpp"
 #include <uORB/Subscription.hpp>
+#include <functional>
 
 using std::pow;
 
@@ -113,19 +114,6 @@ using std::pow;
 
 #define ITER_MAX 5
 
-/**
- * ControlAllocationData contains information to be passed into nonlinear minimization function
- */
-struct ControlAllocationData {
-    matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired;
-    matrix::Vector3f vBody;
-    float Gamma;
-    float VaRear;
-    float servoMax;
-    float airspeed;
-    float airDensity;
-};
-
 // Forward function declarations
 static matrix::Vector2f calcElevonForce(struct ControlAllocationData* data);
 static void rotorThrustTorque(float *thrustTorqueDers, float delta, float Va, float airDensity, uint8_t rotorNum);
@@ -139,12 +127,6 @@ static void calcThrustTorqueAchievedDer(
     matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_AXES> *thrustTorqueAchievedDer,
     float *thrust, float *torque, float *thrustDer, float *torqueDer,
     matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
-static float nonlinearCtrlOptFun(const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
-    matrix::Vector<float, VTOL_NUM_ACTUATORS> *grad_out, void *opt_data);
-static matrix::Vector<float, VTOL_NUM_ACTUATORS> computeNonlinearOpt(
-    matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired,
-    matrix::Vector<float, VTOL_NUM_ACTUATORS> x0,
-    ControlAllocationData *controlAllocationData, size_t iterMax);
 static void getAchievableThrust(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesired,
     matrix::Vector<float, VTOL_NUM_ACTUATORS> actuators, ControlAllocationData *controlAllocationData);
 
@@ -392,7 +374,9 @@ void calcThrustTorqueAchievedDer(
  * grad_out: The gradient of the function at the vals_inp point
  * opt_data: Extra arguments to the function (Gamma, VaRear, vBody, and thrustTorqueDesired)
  */
-float nonlinearCtrlOptFun(const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
+float
+ControlAllocationNonlinearOptimization::nonlinearCtrlOptFun(
+    const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
     matrix::Vector<float, VTOL_NUM_ACTUATORS> *grad_out, void *opt_data) {
 
     ControlAllocationData* controlAllocationData = reinterpret_cast<ControlAllocationData*>(opt_data);
@@ -526,7 +510,8 @@ void getAchievableThrust(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesir
  * airspeed: vehicle airspeed
  * iterMax: maximum number of optimization iterations
  */
-matrix::Vector<float, VTOL_NUM_ACTUATORS> computeNonlinearOpt(
+matrix::Vector<float, VTOL_NUM_ACTUATORS>
+ControlAllocationNonlinearOptimization::computeNonlinearOpt(
     matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired,
     matrix::Vector<float, VTOL_NUM_ACTUATORS> x0,
     ControlAllocationData *controlAllocationData, size_t iterMax) {
@@ -541,7 +526,13 @@ matrix::Vector<float, VTOL_NUM_ACTUATORS> computeNonlinearOpt(
     settings.upper_bounds = upperBounds;
     settings.iter_max = iterMax;
 
-    ctrlalloc_bfgs(x0, nonlinearCtrlOptFun, controlAllocationData, settings);
+    std::function<float(const matrix::Vector<float, VTOL_NUM_ACTUATORS>&,
+        matrix::Vector<float, VTOL_NUM_ACTUATORS>*,  void*)> f =
+        std::bind(&ControlAllocationNonlinearOptimization::nonlinearCtrlOptFun, this,
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
+
+    ctrlalloc_bfgs(x0, f, controlAllocationData, settings);
 
     return x0;
 }

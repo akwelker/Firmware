@@ -48,6 +48,21 @@
 #include "ControlAllocation.hpp"
 #include <px4_platform_common/module_params.h>
 
+#define VTOL_NUM_AXES 5
+#define VTOL_NUM_ACTUATORS 7
+
+/**
+ * ControlAllocationData contains information to be passed into nonlinear minimization function
+ */
+struct ControlAllocationData {
+    matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired;
+    matrix::Vector3f vBody;
+    float Gamma;
+    float VaRear;
+    float servoMax;
+    float airspeed;
+    float airDensity;
+};
 class ControlAllocationNonlinearOptimization: public ControlAllocation, public ModuleParams
 {
 public:
@@ -127,6 +142,17 @@ protected:
 	 * Guards against actuators getting stuck at their limits. A little hacky.
 	 */
 	void initialGuessGuard();
+
+	matrix::Vector<float, VTOL_NUM_ACTUATORS>
+	computeNonlinearOpt(
+		matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired,
+		matrix::Vector<float, VTOL_NUM_ACTUATORS> x0,
+		ControlAllocationData *controlAllocationData, size_t iterMax);
+
+	float
+	nonlinearCtrlOptFun(
+		const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
+		matrix::Vector<float, VTOL_NUM_ACTUATORS> *grad_out, void *opt_data);
 
 	matrix::Matrix<float, NUM_ACTUATORS, NUM_AXES> _mix;
 	matrix::Vector<float, 7> _initGuessGuardCnt;
