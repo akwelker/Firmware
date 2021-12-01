@@ -218,7 +218,10 @@ ControlAllocator::update_effectiveness_source()
 			break;
 
 		case EffectivenessSource::TILTROTOR_VTOL_COMBINED_MODES:
-			tmp = new ActuatorEffectivenessTiltrotorVTOLCombinedModes();
+			if (_allocation_method_id == AllocationMethod::NONLINEAR_OPTIMIZATION)
+				tmp = new NonlinearEffectivenessVTOLTiltrotor();
+			else
+				tmp = new ActuatorEffectivenessTiltrotorVTOLCombinedModes();
 			break;
 
 		case EffectivenessSource::QUADPLANE_COMBINED_MODES:
@@ -360,7 +363,7 @@ ControlAllocator::Run()
 	if (do_update || (AllocationMethod)_param_ca_method.get() == AllocationMethod::NONLINEAR_OPTIMIZATION) {
 		_last_run = now;
 
-		if ((AllocationMethod)_param_ca_method.get() != AllocationMethod::NONLINEAR_OPTIMIZATION)
+		// if ((AllocationMethod)_param_ca_method.get() != AllocationMethod::NONLINEAR_OPTIMIZATION)
 			update_effectiveness_matrix_if_needed();
 
 		// Set control setpoint vector
@@ -409,8 +412,11 @@ ControlAllocator::update_effectiveness_matrix_if_needed()
 			}
 		}
 
-		// Assign control effectiveness matrix
-		_control_allocation->setEffectivenessMatrix(effectiveness, trim, _actuator_effectiveness->numActuators());
+		if (_allocation_method_id == AllocationMethod::NONLINEAR_OPTIMIZATION)
+			((ControlAllocationNonlinearOptimization*) _control_allocation)->setNonlinearEffectiveness(_param_ca_airframe.get());
+		else
+			// Assign control effectiveness matrix
+			_control_allocation->setEffectivenessMatrix(effectiveness, trim, _actuator_effectiveness->numActuators());
 	}
 }
 
@@ -425,17 +431,6 @@ ControlAllocator::publish_actuator_setpoint()
 	actuator_sp.copyTo(vehicle_actuator_setpoint.actuator);
 
 	_vehicle_actuator_setpoint_pub.publish(vehicle_actuator_setpoint);
-	PX4_INFO("torque_setpoint: %.5f %.5f %.5f", (double) _torque_sp(0), (double) _torque_sp(1), (double) _torque_sp(2));
-	PX4_INFO("thrust_setpoint: %.5f %.5f %.5f", (double) _thrust_sp(0), (double) _thrust_sp(1), (double) _thrust_sp(2));
-	PX4_INFO("actuator_setpoint: %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f", (double) actuator_sp(0), (double) actuator_sp(1), (double) actuator_sp(2),
-	(double) actuator_sp(3), (double) actuator_sp(4), (double) actuator_sp(5), (double) actuator_sp(6), (double) actuator_sp(7));
-	PX4_INFO("allocated_thrust: %.5f %.5f %.5f", (double) _control_allocation->getAllocatedControl()(3),
-	(double) _control_allocation->getAllocatedControl()(4),
-	(double) _control_allocation->getAllocatedControl()(5));
-	PX4_INFO("allocated_torque: %.5f %.5f %.5f", (double) _control_allocation->getAllocatedControl()(0),
-	(double) _control_allocation->getAllocatedControl()(1),
-	(double) _control_allocation->getAllocatedControl()(2));
-	PX4_INFO("timestamp: %ld", hrt_absolute_time());
 }
 
 void

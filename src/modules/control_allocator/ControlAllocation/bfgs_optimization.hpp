@@ -4,7 +4,7 @@
 #include "matrix/math.hpp"
 #include <functional>
 
-#define VTOL_NUM_ACTUATORS 7
+#define VTOL_NUM_ACTUATORS 8
 #define VTOL_NUM_AXES 5
 #define EPSILON_FLOAT 1.175494E-38
 #define EPSILON_DOUBLE 2.225E-307

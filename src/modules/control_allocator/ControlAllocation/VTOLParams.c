@@ -306,3 +306,24 @@ PARAM_DEFINE_FLOAT(CA_ROT2_RES, 0.4);
  * @group Control Allocation
  */
 PARAM_DEFINE_FLOAT(CA_ROT2_I0, 0.6);
+
+/**
+ * Control Surface 0 max angle in degrees
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_SURF0_MAX_ANG, 45.0);
+
+/**
+ * Control Surface 1 max angle in degrees
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_SURF1_MAX_ANG, 45.0);
+
+/**
+ * Control Surface 2 max angle in degrees
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_SURF2_MAX_ANG, 45.0);

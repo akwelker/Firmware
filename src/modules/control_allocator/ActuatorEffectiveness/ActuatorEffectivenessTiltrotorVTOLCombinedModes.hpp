@@ -69,6 +69,7 @@ public:
 protected:
 	bool _updated{true};
 	RotorGeometry rotors[3];
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::CA_MC_R0_PX>) _param_ca_mc_r0_px,
 		(ParamFloat<px4::params::CA_MC_R0_PY>) _param_ca_mc_r0_py,
@@ -103,4 +104,5 @@ protected:
 		(ParamFloat<px4::params::CA_C_ELL_DELTA_A>) _param_ca_c_l_delta_a,
 		(ParamFloat<px4::params::CA_C_M_DELTA_E>) _param_ca_c_m_delta_e
 	)
+
 };
