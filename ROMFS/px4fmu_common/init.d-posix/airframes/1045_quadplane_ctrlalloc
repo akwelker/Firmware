@@ -145,5 +145,5 @@ param set-default CA_MC_R4_KM 0.35 #0.35
 param set-default CA_WING_AREA 0.96
 param set-default CA_CHORD_LEN 0.378
 param set-default CA_SPAN 2.5
-param set-default CA_AERO_MOMENT_L 0.202
-param set-default CA_AERO_MOMENT_M -0.325
+param set-default CA_C_ELL_DELTA_A 0.202
+param set-default CA_C_M_DELTA_E -0.325
