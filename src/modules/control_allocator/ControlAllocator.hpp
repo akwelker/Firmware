@@ -48,6 +48,7 @@
 #include <ActuatorEffectivenessTiltrotorVTOLCombinedModes.hpp>
 #include <ActuatorEffectivenessQuadplaneVTOLCombinedModes.hpp>
 #include <NonlinearEffectivenessVTOLTiltrotor.hpp>
+#include <NonlinearEffectivenessVTOLQuadplane.hpp>
 
 #include <ControlAllocation.hpp>
 #include <ControlAllocationPseudoInverse.hpp>

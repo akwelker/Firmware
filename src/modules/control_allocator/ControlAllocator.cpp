@@ -225,7 +225,10 @@ ControlAllocator::update_effectiveness_source()
 			break;
 
 		case EffectivenessSource::QUADPLANE_COMBINED_MODES:
-			tmp = new ActuatorEffectivenessQuadplaneVTOLCombinedModes();
+			if (_allocation_method_id == AllocationMethod::NONLINEAR_OPTIMIZATION)
+				tmp = new NonlinearEffectivenessVTOLQuadplane();
+			else
+				tmp = new ActuatorEffectivenessQuadplaneVTOLCombinedModes();
 			break;
 
 		default:

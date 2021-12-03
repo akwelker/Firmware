@@ -54,13 +54,6 @@ PARAM_DEFINE_FLOAT(CA_TLT_SRVO_MIN, 0.0);
 PARAM_DEFINE_FLOAT(CA_TLT_SRVO_MAX, 115.0);
 
 /**
- * Maximum voltage onboard
- *
- * @group Control Allocation
- */
-PARAM_DEFINE_FLOAT(CA_VMAX, 11.1);
-
-/**
  * Maximum force in the positive X direction
  *
  * @group Control Allocation
@@ -168,6 +161,13 @@ PARAM_DEFINE_FLOAT(CA_ROT0_RES, 0.3);
 PARAM_DEFINE_FLOAT(CA_ROT0_I0, 0.83);
 
 /**
+ * Maximum voltage for rotor 0
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_ROT0_VMAX, 11.1);
+
+/**
  * CQ0 rotor 1 moment coefficient
  *
  * @group Control Allocation
@@ -238,6 +238,13 @@ PARAM_DEFINE_FLOAT(CA_ROT1_RES, 0.3);
 PARAM_DEFINE_FLOAT(CA_ROT1_I0, 0.83);
 
 /**
+ * Maximum voltage for rotor 1
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_ROT1_VMAX, 11.1);
+
+/**
  * CQ0 rotor 2 moment coefficient
  *
  * @group Control Allocation
@@ -306,6 +313,13 @@ PARAM_DEFINE_FLOAT(CA_ROT2_RES, 0.4);
  * @group Control Allocation
  */
 PARAM_DEFINE_FLOAT(CA_ROT2_I0, 0.6);
+
+/**
+ * Maximum voltage for rotor 2
+ *
+ * @group Control Allocation
+ */
+PARAM_DEFINE_FLOAT(CA_ROT2_VMAX, 11.1);
 
 /**
  * Control Surface 0 max angle in degrees

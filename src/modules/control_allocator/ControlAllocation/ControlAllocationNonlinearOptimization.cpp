@@ -313,5 +313,7 @@ ControlAllocationNonlinearOptimization::ControlAllocationNonlinearOptimization()
 void ControlAllocationNonlinearOptimization::setNonlinearEffectiveness(size_t effectivenessID) {
     if (effectivenessID == TILTROTOR_VTOL_COMBINED_MODES) {
         _nonlin_effectiveness = new NonlinearEffectivenessVTOLTiltrotor();
+    } else if (effectivenessID == QUADPLANE_COMBINED_MODES) {
+        _nonlin_effectiveness = new NonlinearEffectivenessVTOLQuadplane();
     }
 }

@@ -32,141 +32,98 @@
  ****************************************************************************/
 
 /**
- * @file ControlAllocationNonlinearOptimization.hpp
+ * @file NonlinearEffectivenessVTOLQuadplane.hpp
  *
- * Nonlinear optimizer based off of a quadratic thrust/torque rotor model
- *
- * The optimizer uses the BFGS algorithm to iteratively check potential actuator
- * setpoints for thrust/torque achieved until a iterations run out or a good-enough
- * setpoint is found.
+ * Nonlinear functions for calculating optimal actuator setpoint for a quadplane
+ * being flown in continuous mode (no separate hover/fixed-wing flight)
  *
  * @author Mason Peterson <mbpeterson70@gmail.com>
  */
 
 #pragma once
 
-#include "ControlAllocation.hpp"
-#include "ActuatorEffectiveness/NonlinearEffectiveness.hpp"
-#include "ActuatorEffectiveness/NonlinearEffectivenessVTOLTiltrotor.hpp"
-#include "ActuatorEffectiveness/NonlinearEffectivenessVTOLQuadplane.hpp"
 #include <px4_platform_common/module_params.h>
-#include <px4_log.h>
+#include <matrix/matrix/math.hpp>
+#include "NonlinearEffectiveness.hpp"
 
-#define VTOL_NUM_AXES 5
-#define VTOL_NUM_ACTUATORS 8
-
-class ControlAllocationNonlinearOptimization: public ControlAllocation, public ModuleParams
+class NonlinearEffectivenessVTOLQuadplane: public NonlinearEffectiveness, ModuleParams
 {
 public:
-	ControlAllocationNonlinearOptimization();
-	virtual ~ControlAllocationNonlinearOptimization() = default;
+	NonlinearEffectivenessVTOLQuadplane() : ModuleParams(nullptr){
+		for (uint8_t i = 0; i < 4; ++i) {
+			_rotor_params[i].position_x = _param_ca_mc_r0_px.get();
+			_rotor_params[i].position_y = _param_ca_mc_r0_py.get();
+			_rotor_params[i].position_z = _param_ca_mc_r0_pz.get();
+			_rotor_params[i].axis_x = _param_ca_mc_r0_ax.get();
+			_rotor_params[i].axis_y = _param_ca_mc_r0_ay.get();
+			_rotor_params[i].axis_z = _param_ca_mc_r0_az.get();
+			_rotor_params[i].CQ0 = _param_ca_rot0_CQ0.get();
+			_rotor_params[i].CQ1 = _param_ca_rot0_CQ1.get();
+			_rotor_params[i].CQ2 = _param_ca_rot0_CQ2.get();
+			_rotor_params[i].CT0 = _param_ca_rot0_CT0.get();
+			_rotor_params[i].CT1 = _param_ca_rot0_CT1.get();
+			_rotor_params[i].CT2 = _param_ca_rot0_CT2.get();
+			_rotor_params[i].prop_diam = _param_ca_rot0_prop_diam.get();
+			_rotor_params[i].KV = _param_ca_rot0_KV.get();
+			_rotor_params[i].KQ = (1.f / _rotor_params[i].KV) * 60.f / (2.f * (float) M_PI);
+			_rotor_params[i].resistance = _param_ca_rot0_res.get();
+			_rotor_params[i].i0 = _param_ca_rot0_i0.get();
+			_rotor_params[i].V_max = _param_ca_rot0_vmax.get();
+		}
 
-	virtual void allocate() override;
-	virtual void setEffectivenessMatrix(const matrix::Matrix<float, NUM_AXES, NUM_ACTUATORS> &effectiveness,
-					    const matrix::Vector<float, NUM_ACTUATORS> &actuator_trim, int num_actuators) override;
-
-	void setNonlinearEffectiveness(size_t effectivenessID);
-
-	/**
-	 * Set the airspeed
-	 *
-	 * @param airspeed Vehicle's airspeed
-	 */
-	virtual void setAirspeed(const float airspeed) override
-	{
-		if (!std::isnan(airspeed))
-			_airspeed = airspeed;
-		else
-			_airspeed = 0.f;
-		_nonlin_effectiveness->setAirspeed(_airspeed);
+		_rotor_params[4].position_x = _param_ca_mc_r1_px.get();
+		_rotor_params[4].position_y = _param_ca_mc_r1_py.get();
+		_rotor_params[4].position_z = _param_ca_mc_r1_pz.get();
+		_rotor_params[4].axis_x = _param_ca_mc_r1_ax.get();
+		_rotor_params[4].axis_y = _param_ca_mc_r1_ay.get();
+		_rotor_params[4].axis_z = _param_ca_mc_r1_az.get();
+		_rotor_params[4].CQ0 = _param_ca_rot1_CQ0.get();
+		_rotor_params[4].CQ1 = _param_ca_rot1_CQ1.get();
+		_rotor_params[4].CQ2 = _param_ca_rot1_CQ2.get();
+		_rotor_params[4].CT0 = _param_ca_rot1_CT0.get();
+		_rotor_params[4].CT1 = _param_ca_rot1_CT1.get();
+		_rotor_params[4].CT2 = _param_ca_rot1_CT2.get();
+		_rotor_params[4].prop_diam = _param_ca_rot1_prop_diam.get();
+		_rotor_params[4].KV = _param_ca_rot1_KV.get();
+		_rotor_params[4].KQ = (1.f / _rotor_params[4].KV) * 60.f / (2.f * (float) M_PI);
+		_rotor_params[4].resistance = _param_ca_rot1_res.get();
+		_rotor_params[4].i0 = _param_ca_rot1_i0.get();
+		_rotor_params[4].V_max = _param_ca_rot1_vmax.get();
 	}
+	virtual ~NonlinearEffectivenessVTOLQuadplane() = default;
 
-	/**
-	 * Set the attitude
-	 *
-	 * @param q Vehicle's attitude
-	 */
-	void setOrientation(const matrix::Quatf q)
-	{
-		_q = q;
-	}
-
-	/**
-	 * Set the inertial velocity
-	 *
-	 * @param inertial_velocity Vehicle's inertial velocity
-	 */
-	void setInertialVelocity(const matrix::Vector3f inertial_velocity)
-	{
-		_interial_velocity = inertial_velocity;
-	}
-
-	/**
-	 * Set the air denisty
-	 *
-	 * @param air_density Air density
-	 */
-	void setAirDensity(const float air_density)
-	{
-		_air_density = air_density;
-		_nonlin_effectiveness->setAirDensity(air_density);
-	}
-
-protected:
-
-	typedef struct {
-		float position_x;
-		float position_y;
-		float position_z;
-		float axis_x;
-		float axis_y;
-		float axis_z;
-		float CQ0;
-		float CQ1;
-		float CQ2;
-		float CT0;
-		float CT1;
-		float CT2;
-		float prop_diam;
-		float KV;
-		float KQ;
-		float resistance;
-		float i0;
-	} RotorParams;
-
-	void
-	getAchievableThrust(
-		matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueDesired,
-		matrix::Vector<float, VTOL_NUM_ACTUATORS> actuators,
-		NonlinearEffectiveness_ControlAllocationData *controlAllocationData);
-
-	/**
-	 * Guards against actuators getting stuck at their limits. A little hacky.
-	 */
-	void initialGuessGuard();
 
 	matrix::Vector<float, VTOL_NUM_ACTUATORS>
-	computeNonlinearOpt(
-		matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired,
-		matrix::Vector<float, VTOL_NUM_ACTUATORS> x0,
-		NonlinearEffectiveness_ControlAllocationData *controlAllocationData, size_t iterMax);
+	getSolutionFromActuatorSp(matrix::Vector<float, 16> &actuator_sp);
+
+	matrix::Vector<float, VTOL_NUM_ACTUATORS>
+	getActuatorSpFromSolution(matrix::Vector<float, VTOL_NUM_ACTUATORS> &solution);
+
+	void calcThrustTorqueAchieved(
+	    	matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
+	    	matrix::Vector<float, VTOL_NUM_ACTUATORS> &x,
+		matrix::Vector3f vBody, float airspeed, float airDensity);
 
 	float
 	nonlinearCtrlOptFun(
-	const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
-	matrix::Vector<float, VTOL_NUM_ACTUATORS> *grad_out, void *opt_data) {
-		return _nonlin_effectiveness->nonlinearCtrlOptFun(vals_inp, grad_out, opt_data);
-	}
+		const matrix::Vector<float, VTOL_NUM_ACTUATORS>& vals_inp,
+		matrix::Vector<float, VTOL_NUM_ACTUATORS> *grad_out,
+		void *opt_data);
 
-	NonlinearEffectiveness *_nonlin_effectiveness;
-	matrix::Matrix<float, NUM_ACTUATORS, NUM_AXES> _mix;
-	matrix::Vector<float, 7> _initGuessGuardCnt;
+	matrix::Vector2f
+	calcControlSurfaceForce(struct NonlinearEffectiveness_ControlAllocationData *data);
 
-	bool _mix_update_needed{false};
-	matrix::Quatf _q{1.f, 0.f, 0.f, 0.f};
-	matrix::Vector3f _interial_velocity{0.f, 0.f, 0.f};
-	float _air_density{1.225f};
-	RotorParams _rotor_params[3];
+protected:
+
+
+	void calcThrustTorqueAchieved(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
+    		float *thrust, float *torque, matrix::Vector2f elevonForceCoefs,
+    		matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
+
+	void calcThrustTorqueAchievedDer(
+    		matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_AXES> *thrustTorqueAchievedDer,
+    		float *thrust, float *torque, float *thrustDer, float *torqueDer,
+    		matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::CA_MC_R0_PX>) _param_ca_mc_r0_px,
@@ -183,13 +140,6 @@ protected:
 		(ParamFloat<px4::params::CA_MC_R1_AY>) _param_ca_mc_r1_ay,
 		(ParamFloat<px4::params::CA_MC_R1_AZ>) _param_ca_mc_r1_az,
 
-		(ParamFloat<px4::params::CA_MC_R2_PX>) _param_ca_mc_r2_px,
-		(ParamFloat<px4::params::CA_MC_R2_PY>) _param_ca_mc_r2_py,
-		(ParamFloat<px4::params::CA_MC_R2_PZ>) _param_ca_mc_r2_pz,
-		(ParamFloat<px4::params::CA_MC_R2_AX>) _param_ca_mc_r2_ax,
-		(ParamFloat<px4::params::CA_MC_R2_AY>) _param_ca_mc_r2_ay,
-		(ParamFloat<px4::params::CA_MC_R2_AZ>) _param_ca_mc_r2_az,
-
 		(ParamFloat<px4::params::CA_WING_AREA>) _param_ca_wing_area,
 		(ParamFloat<px4::params::CA_CHORD_LEN>) _param_ca_chord_len,
 		(ParamFloat<px4::params::CA_SPAN>) _param_ca_span,
@@ -200,12 +150,12 @@ protected:
 
 		(ParamFloat<px4::params::CA_TLT_SRVO_MIN>) _param_ca_tlt_servo_min,
 		(ParamFloat<px4::params::CA_TLT_SRVO_MAX>) _param_ca_tlt_servo_max,
-		(ParamFloat<px4::params::CA_VMAX>) _param_ca_vmax,
 		(ParamFloat<px4::params::CA_MAX_F_POS_X>) _param_ca_f_pos_x,
 		(ParamFloat<px4::params::CA_MAX_F_NEG_X>) _param_ca_f_neg_x,
 		(ParamFloat<px4::params::CA_MAX_F_POS_Z>) _param_ca_f_pos_z,
 		(ParamFloat<px4::params::CA_MAX_F_NEG_Z>) _param_ca_f_neg_z,
 		(ParamInt<px4::params::CA_NL_ITER_MAX>) _param_ca_nonlin_iter_max,
+
 		(ParamFloat<px4::params::CA_ROT0_CQ0>) _param_ca_rot0_CQ0,
 		(ParamFloat<px4::params::CA_ROT0_CQ1>) _param_ca_rot0_CQ1,
 		(ParamFloat<px4::params::CA_ROT0_CQ2>) _param_ca_rot0_CQ2,
@@ -216,6 +166,7 @@ protected:
 		(ParamFloat<px4::params::CA_ROT0_KV>) _param_ca_rot0_KV,
 		(ParamFloat<px4::params::CA_ROT0_RES>) _param_ca_rot0_res,
 		(ParamFloat<px4::params::CA_ROT0_I0>) _param_ca_rot0_i0,
+		(ParamFloat<px4::params::CA_ROT0_VMAX>) _param_ca_rot0_vmax,
 
 		(ParamFloat<px4::params::CA_ROT1_CQ0>) _param_ca_rot1_CQ0,
 		(ParamFloat<px4::params::CA_ROT1_CQ1>) _param_ca_rot1_CQ1,
@@ -227,17 +178,11 @@ protected:
 		(ParamFloat<px4::params::CA_ROT1_KV>) _param_ca_rot1_KV,
 		(ParamFloat<px4::params::CA_ROT1_RES>) _param_ca_rot1_res,
 		(ParamFloat<px4::params::CA_ROT1_I0>) _param_ca_rot1_i0,
+		(ParamFloat<px4::params::CA_ROT1_VMAX>) _param_ca_rot1_vmax,
 
-		(ParamFloat<px4::params::CA_ROT0_CQ0>) _param_ca_rot2_CQ0,
-		(ParamFloat<px4::params::CA_ROT0_CQ1>) _param_ca_rot2_CQ1,
-		(ParamFloat<px4::params::CA_ROT0_CQ2>) _param_ca_rot2_CQ2,
-		(ParamFloat<px4::params::CA_ROT0_CT0>) _param_ca_rot2_CT0,
-		(ParamFloat<px4::params::CA_ROT0_CT1>) _param_ca_rot2_CT1,
-		(ParamFloat<px4::params::CA_ROT0_CT2>) _param_ca_rot2_CT2,
-		(ParamFloat<px4::params::CA_ROT0_PROP_D>) _param_ca_rot2_prop_diam,
-		(ParamFloat<px4::params::CA_ROT0_KV>) _param_ca_rot2_KV,
-		(ParamFloat<px4::params::CA_ROT0_RES>) _param_ca_rot2_res,
-		(ParamFloat<px4::params::CA_ROT0_I0>) _param_ca_rot2_i0
+		(ParamFloat<px4::params::CA_SURF0_MAX_ANG>) _param_ca_surf0_max_ang,
+		(ParamFloat<px4::params::CA_SURF1_MAX_ANG>) _param_ca_surf1_max_ang,
+		(ParamFloat<px4::params::CA_SURF2_MAX_ANG>) _param_ca_surf2_max_ang
 	)
 
 };
