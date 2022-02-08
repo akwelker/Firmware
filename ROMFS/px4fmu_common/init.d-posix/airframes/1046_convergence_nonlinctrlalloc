@@ -41,7 +41,7 @@ param set-default MPC_THR_HOVER 0.5
 ###############################################################################
 
 param set-default MC_PITCH_P  6
-param set-default MC_ROLL_P   6.6
+param set-default MC_ROLL_P   6.
 param set-default MC_YAW_P    2.5
 param set-default MC_YAWRATE_MAX 120
 param set-default MC_PITCHRATE_MAX 120
@@ -58,15 +58,19 @@ param set-default VM_INERTIA_YY 0.025
 param set-default VM_INERTIA_ZZ 0.0282
 param set-default VM_INERTIA_XZ 0.000048
 
-param set-default AVC_X_P 16.0
+param set-default AVC_X_P 20.0
 param set-default AVC_Y_P 16.0
 param set-default AVC_Z_P 15.0
-param set-default AVC_X_I 0.01
+param set-default AVC_X_I 0.08
 param set-default AVC_Y_I 0.28
-param set-default AVC_Z_I 0.005
-param set-default AVC_X_D 0.005
+param set-default AVC_Z_I 0.1
+param set-default AVC_X_D 0.001
 param set-default AVC_Y_D 0.001
-param set-default AVC_Z_D 0.001
+param set-default AVC_Z_D 0.003
+
+param set-default AVC_Y_I_LIM 100.0
+param set-default AVC_X_I_LIM 100.0
+param set-default AVC_Z_I_LIM 100.0
 
 ###############################################################################
 #                              Control Allocation                             #
@@ -119,13 +123,13 @@ param set-default CA_C_D_DELTA_E 0.005
 
 param set-default CA_TLT_SRVO_MIN 0
 param set-default CA_TLT_SRVO_MAX 115
-param set-default CA_VMAX 11.1
+param set-default CA_ROT0_VMAX 11.1
 
 param set-default CA_MAX_F_POS_X 18.0
 param set-default CA_MAX_F_NEG_X -4.34
 param set-default CA_MAX_F_POS_Z 100.0
 param set-default CA_MAX_F_NEG_Z -14.0
-param set-default CA_NL_ITER_MAX 5
+param set-default CA_NL_ITER_MAX 7
 
 param set-default CA_ROT0_CQ0 0.0088
 param set-default CA_ROT0_CQ1 0.0129
