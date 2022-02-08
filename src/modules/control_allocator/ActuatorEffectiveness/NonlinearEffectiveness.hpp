@@ -136,7 +136,7 @@ public:
 	virtual matrix::Vector<float, VTOL_NUM_ACTUATORS>
 	getSolutionFromActuatorSp(matrix::Vector<float, 16> &actuator_sp);
 
-	virtual matrix::Vector<float, VTOL_NUM_ACTUATORS>
+	virtual matrix::Vector<float, 16>
 	getActuatorSpFromSolution(matrix::Vector<float, VTOL_NUM_ACTUATORS> &solution);
 
 	virtual void calcThrustTorqueAchieved(
@@ -173,7 +173,7 @@ protected:
 
 
 	void rotorThrustTorque(float *thrustTorqueDers, float delta, float Va, float airDensity,
-		NonlinearEffectiveness_RotorParams rotor);
+		NonlinearEffectiveness_RotorParams &rotor);
 	virtual void calcThrustTorqueAchieved(matrix::Vector<float, VTOL_NUM_AXES> *thrustTorqueAchieved,
     		float *thrust, float *torque, matrix::Vector2f elevonForceCoefs,
     		matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
@@ -183,7 +183,6 @@ protected:
     		float *thrust, float *torque, float *thrustDer, float *torqueDer,
     		matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
 
-	NonlinearEffectiveness_RotorParams _rotor_params[3];
 	matrix::Quatf _q{1.f, 0.f, 0.f, 0.f};
 	matrix::Vector3f _interial_velocity{0.f, 0.f, 0.f};
 	float _air_density{1.225f};

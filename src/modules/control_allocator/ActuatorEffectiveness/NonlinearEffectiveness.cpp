@@ -126,7 +126,7 @@ using std::pow;
  */
 void
 NonlinearEffectiveness::rotorThrustTorque(
-    float *thrustTorqueDers, float delta, float Va, float airDensity, NonlinearEffectiveness_RotorParams rotor) {
+    float *thrustTorqueDers, float delta, float Va, float airDensity, NonlinearEffectiveness_RotorParams &rotor) {
 
     // map delta_t throttle command(0 to 1) into motor input voltage
     float V_in = rotor.V_max * delta;
