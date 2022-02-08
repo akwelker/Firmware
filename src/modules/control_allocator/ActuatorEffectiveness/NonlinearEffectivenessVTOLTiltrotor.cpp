@@ -57,7 +57,7 @@ NonlinearEffectivenessVTOLTiltrotor::getSolutionFromActuatorSp(
 {
 	matrix::Vector<float, VTOL_NUM_ACTUATORS> solution;
 	float tiltServoMax = _param_ca_tlt_servo_max.get() * (float) M_PI / 180.f;
-	float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
+	// float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
 
 
 	solution(0) = actuator_sp(0);
@@ -65,20 +65,20 @@ NonlinearEffectivenessVTOLTiltrotor::getSolutionFromActuatorSp(
 	solution(2) = actuator_sp(2);
 	solution(3) = actuator_sp(4) * tiltServoMax;
 	solution(4) = (1.f - actuator_sp(5)) * tiltServoMax;
-	solution(5) = -actuator_sp(6) * elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
-	solution(6) = actuator_sp(7) * elevonMax;
+	solution(5) = -actuator_sp(6);// * elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
+	solution(6) = actuator_sp(7);// * elevonMax;
     solution(7) = 0.f; // empty
 
     return solution;
 }
 
-matrix::Vector<float, VTOL_NUM_ACTUATORS>
+matrix::Vector<float, 16>
 NonlinearEffectivenessVTOLTiltrotor::getActuatorSpFromSolution(
 	matrix::Vector<float, VTOL_NUM_ACTUATORS> &solution)
 {
-	matrix::Vector<float, VTOL_NUM_ACTUATORS> actuator_sp;
+	matrix::Vector<float, 16> actuator_sp;
 	float tiltServoMax = _param_ca_tlt_servo_max.get() * (float) M_PI / 180.f;
-	float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
+	// float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
 
 	actuator_sp(0) = solution(0);
 	actuator_sp(1) = solution(1);
@@ -86,8 +86,8 @@ NonlinearEffectivenessVTOLTiltrotor::getActuatorSpFromSolution(
 	actuator_sp(3) = 0.f;
 	actuator_sp(4) = solution(3) / tiltServoMax;
 	actuator_sp(5) = 1.f - (solution(4) / tiltServoMax);
-	actuator_sp(6) = -solution(5) / elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
-	actuator_sp(7) = solution(6) / elevonMax;
+	actuator_sp(6) = -solution(5);// / elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
+	actuator_sp(7) = solution(6);// / elevonMax;
 
     return actuator_sp;
 }
@@ -176,7 +176,25 @@ NonlinearEffectivenessVTOLTiltrotor::nonlinearCtrlOptFun(
     float x_1 = std::cos(vals_inp(CA_SERVO_LEFT));
     float z_1 = std::sin(vals_inp(CA_SERVO_LEFT));
     matrix::Matrix<float, VTOL_NUM_AXES, VTOL_NUM_AXES> K;
+    matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_ACTUATORS> K_delta;
     K.setIdentity();
+    float wrenchMin = 1.0f;
+    K(0, 0) = abs(controlAllocationData->thrustTorqueDesired(0)) > wrenchMin ?
+        1.f / powf(controlAllocationData->thrustTorqueDesired(0), 2.f) : powf(wrenchMin, 2.f);
+    K(1, 1) = abs(controlAllocationData->thrustTorqueDesired(1)) > wrenchMin ?
+        1.f / powf(controlAllocationData->thrustTorqueDesired(1), 2.f) : powf(wrenchMin, 2.f);
+    K(2, 2) = abs(controlAllocationData->thrustTorqueDesired(2)) > wrenchMin ?
+        1.f / powf(controlAllocationData->thrustTorqueDesired(2), 2.f) : powf(wrenchMin, 2.f);
+    K(3, 3) = abs(controlAllocationData->thrustTorqueDesired(3)) > wrenchMin ?
+        1.f / powf(controlAllocationData->thrustTorqueDesired(3), 2.f) : powf(wrenchMin, 2.f);
+    K(4, 4) = abs(controlAllocationData->thrustTorqueDesired(4)) > wrenchMin ?
+        1.f / powf(controlAllocationData->thrustTorqueDesired(4), 2.f) : powf(wrenchMin, 2.f);
+    K_delta(0, 0) = 10.0f;
+    K_delta(1, 1) = 10.0f;
+    K_delta(2, 2) = 10.0f;
+    K_delta(3, 3) = .03f;
+    K_delta(4, 4) = .03f;
+    K_delta = K_delta * powf(controlAllocationData->airspeed, 2.f) * 1e-6;
 
     float VaRight = (matrix::Vector3f(x_0, 0.0, -z_0).transpose() * controlAllocationData->vBody)(0, 0);
     float VaLeft = (matrix::Vector3f(x_1, 0.0, -z_1).transpose() * controlAllocationData->vBody)(0, 0);
@@ -200,16 +218,13 @@ NonlinearEffectivenessVTOLTiltrotor::nonlinearCtrlOptFun(
     matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDiff = controlAllocationData->thrustTorqueDesired - thrustTorqueAchieved;
     float normDiff = (0.5f * thrustTorqueDiff.transpose() * K * thrustTorqueDiff)(0, 0);
     matrix::Vector3f rotorOutput(vals_inp(CA_ROTOR_RIGHT), vals_inp(CA_ROTOR_LEFT), vals_inp(CA_ROTOR_REAR));
-    float rotorScaling = 0.0f;//.1f;
-    normDiff += rotorScaling * (rotorOutput.transpose() * rotorOutput)(0, 0);
+    normDiff += 0.5f * (vals_inp.transpose() * K_delta * vals_inp)(0, 0);
 
     matrix::Matrix<float, VTOL_NUM_ACTUATORS, VTOL_NUM_AXES> thrustTorqueDer;
     calcThrustTorqueAchievedDer(&thrustTorqueDer, thrust, torque, thrustDer, torqueDer,
         elevonForceCoefs, vals_inp, controlAllocationData->Gamma);
     matrix::Vector<float, VTOL_NUM_ACTUATORS> normDiffDer = -1.f * thrustTorqueDer * K * thrustTorqueDiff;
-    normDiffDer(CA_ROTOR_RIGHT) += rotorScaling * 2.f * vals_inp(CA_ROTOR_RIGHT);
-    normDiffDer(CA_ROTOR_LEFT) += rotorScaling * 2.f * vals_inp(CA_ROTOR_LEFT);
-    normDiffDer(CA_ROTOR_REAR) += rotorScaling * 2.f * vals_inp(CA_ROTOR_REAR);
+    normDiffDer += K_delta * vals_inp;
 
     if (grad_out) {
         *grad_out = normDiffDer;

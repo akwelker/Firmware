@@ -113,7 +113,7 @@ public:
 	matrix::Vector<float, VTOL_NUM_ACTUATORS>
 	getSolutionFromActuatorSp(matrix::Vector<float, 16> &actuator_sp);
 
-	matrix::Vector<float, VTOL_NUM_ACTUATORS>
+	matrix::Vector<float, 16>
 	getActuatorSpFromSolution(matrix::Vector<float, VTOL_NUM_ACTUATORS> &solution);
 
 	void calcThrustTorqueAchieved(
@@ -217,5 +217,7 @@ protected:
 		(ParamFloat<px4::params::CA_SURF1_MAX_ANG>) _param_ca_surf1_max_ang,
 		(ParamFloat<px4::params::CA_SURF2_MAX_ANG>) _param_ca_surf2_max_ang
 	)
+
+	NonlinearEffectiveness_RotorParams _rotor_params[3];
 
 };
