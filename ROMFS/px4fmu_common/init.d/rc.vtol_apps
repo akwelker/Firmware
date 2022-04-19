@@ -19,7 +19,7 @@ airspeed_selector start
 
 if [ $VEHICLE_TYPE = vtol_combmodes ]
 then
-	mc_att_control start
+	# mc_att_control start
 	flight_mode_manager start
 else
 	vtol_att_control start
