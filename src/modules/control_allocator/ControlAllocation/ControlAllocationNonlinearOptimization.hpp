@@ -200,7 +200,7 @@ protected:
 
 		(ParamFloat<px4::params::CA_TLT_SRVO_MIN>) _param_ca_tlt_servo_min,
 		(ParamFloat<px4::params::CA_TLT_SRVO_MAX>) _param_ca_tlt_servo_max,
-		(ParamFloat<px4::params::CA_VMAX>) _param_ca_vmax,
+		(ParamFloat<px4::params::CA_ROT0_VMAX>) _param_ca_vmax,
 		(ParamFloat<px4::params::CA_MAX_F_POS_X>) _param_ca_f_pos_x,
 		(ParamFloat<px4::params::CA_MAX_F_NEG_X>) _param_ca_f_neg_x,
 		(ParamFloat<px4::params::CA_MAX_F_POS_Z>) _param_ca_f_pos_z,

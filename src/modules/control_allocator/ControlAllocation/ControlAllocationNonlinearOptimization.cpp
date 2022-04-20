@@ -54,66 +54,6 @@ using std::pow;
 #define CA_ELEVON_RIGHT 5
 #define CA_ELEVON_LEFT 6
 
-// VTOL Vehicle parameters
-#define VTOL_NCELLS 3
-#define VTOL_V_MAX (3.7f * VTOL_NCELLS)
-#define VTOL_S_WING 0.2589f
-#define VTOL_B 1.4224f
-#define VTOL_C 0.3305f
-#define VTOL_C_ELL_DELTA_A 0.018f
-#define VTOL_C_M_DELTA_E (-0.05f)
-#define VTOL_C_L_DELTA_E 0.2f
-#define VTOL_C_D_DELTA_E 0.005f
-
-// #define VTOL_K (matrix::Matrix<float, NUM_AXIS, NUM_AXIS>
-// Identity(VTOL_NUM_AXES, VTOL_NUM_AXES))
-#define VTOL_SERVO_MAX (115.0f * (float) M_PI / 180)
-#define VTOL_SERVO_LIMITED_MAX (115.0f * (float) M_PI / 180)
-#define VTOL_AIRSPEED_START_LIMIT 10.0f
-#define VTOL_AIRSPEED_END_LIMIT 20.0f
-#define VTOL_MAX_THRUST_NEG_X (-4.34f)
-#define VTOL_MAX_THRUST_POS_X 18.f //(10.28f)
-#define VTOL_MAX_THRUST_NEG_Z (-13.98f)
-
-// Rotor positions
-#define VTOL_Q0_X 0.12f
-#define VTOL_Q0_Y 0.2f
-#define VTOL_Q0_Z 0.0f
-#define VTOL_Q1_X 0.12f
-#define VTOL_Q1_Y (-0.2f)
-#define VTOL_Q1_Z 0.0f
-#define VTOL_Q2_X (-0.24f)
-#define VTOL_Q2_Y 0.0f
-#define VTOL_Q2_Z 0.0f
-
-// Rear rotor paramaters
-#define C_Q0_REAR 0.0216f
-#define C_Q1_REAR 0.0292f
-#define C_Q2_REAR (-0.0368f)
-#define C_T0_REAR 0.2097f
-#define C_T1_REAR 0.0505f
-#define C_T2_REAR (-0.1921f)
-#define D_PROP_REAR (5.5f*(0.0254f))
-#define KV_REAR 1550.0f
-#define KQ_REAR ((1.f / KV_REAR) * 60.f / (2.f * (float) M_PI))
-#define R_MOTOR_REAR 0.4f
-#define I0_REAR 0.6f
-
-// Front rotor parameters
-#define C_Q0_FRONT 0.0088f
-#define C_Q1_FRONT 0.0129f
-#define C_Q2_FRONT (-0.0216f)
-#define C_T0_FRONT 0.1167f
-#define C_T1_FRONT 0.0144f
-#define C_T2_FRONT (-0.1480f)
-#define D_PROP_FRONT (7.0f*0.0254f)
-#define KV_FRONT 1450.0f
-#define KQ_FRONT ((1.f / KV_FRONT) * 60.f / (2.f * (float) M_PI))
-#define R_MOTOR_FRONT 0.3f
-#define I0_FRONT 0.83f
-
-#define ITER_MAX 5
-
 #define TILTROTOR_VTOL_COMBINED_MODES 3
 #define QUADPLANE_COMBINED_MODES 4
 
@@ -183,6 +123,8 @@ ControlAllocationNonlinearOptimization::computeNonlinearOpt(
     float tiltServoMax = 115.f * (float) M_PI / 180.f;
     float lowerBoundsf[VTOL_NUM_ACTUATORS] = {0.00, 0.00, 0.00, 0.0, 0.0, -1.0, -1.0};
     float upperBoundsf[VTOL_NUM_ACTUATORS] = {1.0, 1.0, 1.0, tiltServoMax, tiltServoMax, 1.0, 1.0};
+    // float lowerBoundsf[VTOL_NUM_ACTUATORS] = {0.00, 0.00, 0.00, 0.0, 0.0, -1.0, -1.0};
+    // float upperBoundsf[VTOL_NUM_ACTUATORS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
     matrix::Vector<float, VTOL_NUM_ACTUATORS> lowerBounds(lowerBoundsf);
     matrix::Vector<float, VTOL_NUM_ACTUATORS> upperBounds(upperBoundsf);
     settings.lower_bounds = lowerBounds;
@@ -215,6 +157,15 @@ ControlAllocationNonlinearOptimization::initialGuessGuard() {
             _initGuessGuardCnt(i) = 0;
         }
     }
+    // checks whether the actuators have not been set yet
+    for (uint8_t i = 0; i < VTOL_NUM_ACTUATORS; ++i) {
+        if (!(_actuator_sp(i) < 0.0001f && _actuator_sp(i) > -0.0001f))
+            break;
+        if (i == (VTOL_NUM_ACTUATORS - 1))
+            for(uint8_t j = 0; j < VTOL_NUM_ACTUATORS; ++j) {
+                _actuator_sp(j) = (_actuator_max(j) + _actuator_min(j)) / 2.f;
+            }
+    }
 }
 
 void
@@ -229,8 +180,6 @@ ControlAllocationNonlinearOptimization::setEffectivenessMatrix(
 void
 ControlAllocationNonlinearOptimization::allocate()
 {
-    float elevon_angle_max = 45.f * (float) M_PI / 180.f;
-
 	matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueDesired;
 	matrix::Vector<float, VTOL_NUM_AXES> thrustTorqueAchieved;
 	matrix::Vector<float, VTOL_NUM_ACTUATORS> solution_d1;
@@ -248,43 +197,17 @@ ControlAllocationNonlinearOptimization::allocate()
 
     // Set up NonlinearEffectiveness_ControlAllocationData
     NonlinearEffectiveness_ControlAllocationData controlAllocationData;
-    controlAllocationData.Gamma = .5f * _air_density * powf(_airspeed, 2.f) * VTOL_S_WING;
+    controlAllocationData.Gamma = .5f * _air_density * powf(_airspeed, 2.f) * _param_ca_wing_area.get();
     controlAllocationData.VaRear = (matrix::Vector3f(0.0, 0.0, -1.0).transpose() * vBody)(0, 0);
     controlAllocationData.thrustTorqueDesired = thrustTorqueDesired;
     controlAllocationData.vBody = vBody;
     controlAllocationData.airDensity = _air_density;
     controlAllocationData.airspeed = _airspeed;
 
-    getAchievableThrust(&thrustTorqueDesired, solution_d1, &controlAllocationData);
-
-    // Limits the thrust magnitude to roughly be within achievable range
-    // This only changes thrust vector magnitude, not the angle of the thrust vector
-    if (thrustTorqueDesired(1) < VTOL_MAX_THRUST_NEG_Z) {
-        float scaleFactor = VTOL_MAX_THRUST_NEG_Z / thrustTorqueDesired(1);
-        thrustTorqueDesired(0) = thrustTorqueDesired(0) * scaleFactor;
-        thrustTorqueDesired(1) = VTOL_MAX_THRUST_NEG_Z;
-    }
-    if (thrustTorqueDesired(0) < VTOL_MAX_THRUST_NEG_X) {
-        float scaleFactor = VTOL_MAX_THRUST_NEG_X / thrustTorqueDesired(0);
-        thrustTorqueDesired(0) = VTOL_MAX_THRUST_NEG_X;
-        thrustTorqueDesired(1) = thrustTorqueDesired(1) * scaleFactor;
-    } else if (thrustTorqueDesired(0) > VTOL_MAX_THRUST_POS_X) {
-        float scaleFactor = VTOL_MAX_THRUST_POS_X / thrustTorqueDesired(0);
-        thrustTorqueDesired(0) = VTOL_MAX_THRUST_POS_X;
-        thrustTorqueDesired(1) = thrustTorqueDesired(1) * scaleFactor;
-    }
-
-	matrix::Vector<float, VTOL_NUM_ACTUATORS> solution = computeNonlinearOpt(thrustTorqueDesired, solution_d1, &controlAllocationData, ITER_MAX);
+	matrix::Vector<float, VTOL_NUM_ACTUATORS> solution = computeNonlinearOpt(thrustTorqueDesired, solution_d1, &controlAllocationData, _param_ca_nonlin_iter_max.get());
 	_nonlin_effectiveness->calcThrustTorqueAchieved(&thrustTorqueAchieved, solution, vBody, _airspeed, _air_density);
 
-	_actuator_sp(0) = solution(0);
-	_actuator_sp(1) = solution(1);
-	_actuator_sp(2) = solution(2);
-	_actuator_sp(3) = 0.f;
-	_actuator_sp(4) = solution(3) / VTOL_SERVO_MAX;
-	_actuator_sp(5) = 1.f - (solution(4) / VTOL_SERVO_MAX);
-	_actuator_sp(6) = -solution(5) / elevon_angle_max; // positive right elevon value makes elevon go up. Needs to be negated
-	_actuator_sp(7) = solution(6) / elevon_angle_max;
+    _actuator_sp = _nonlin_effectiveness->getActuatorSpFromSolution(solution);
 
 	_control_allocated(0) = thrustTorqueAchieved(2);
 	_control_allocated(1) = thrustTorqueAchieved(3);
