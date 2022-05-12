@@ -120,6 +120,9 @@ ControlAllocationNonlinearOptimization::computeNonlinearOpt(
     NonlinearEffectiveness_ControlAllocationData *controlAllocationData, size_t iterMax) {
 
     bfgs_settings_t settings;
+
+    // TODO: need to use parameters for actuator bounds
+    // right now just switch lowerBoundsf and upperBoundsf commented out lines
     float tiltServoMax = 115.f * (float) M_PI / 180.f;
     float lowerBoundsf[VTOL_NUM_ACTUATORS] = {0.00, 0.00, 0.00, 0.0, 0.0, -1.0, -1.0};
     float upperBoundsf[VTOL_NUM_ACTUATORS] = {1.0, 1.0, 1.0, tiltServoMax, tiltServoMax, 1.0, 1.0};

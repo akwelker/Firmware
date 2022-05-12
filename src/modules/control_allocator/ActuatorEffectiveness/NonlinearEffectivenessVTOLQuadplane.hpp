@@ -51,12 +51,6 @@ class NonlinearEffectivenessVTOLQuadplane: public NonlinearEffectiveness, Module
 public:
 	NonlinearEffectivenessVTOLQuadplane() : ModuleParams(nullptr){
 		for (uint8_t i = 0; i < 4; ++i) {
-			_rotor_params[i].position_x = _param_ca_mc_r0_px.get();
-			_rotor_params[i].position_y = _param_ca_mc_r0_py.get();
-			_rotor_params[i].position_z = _param_ca_mc_r0_pz.get();
-			_rotor_params[i].axis_x = _param_ca_mc_r0_ax.get();
-			_rotor_params[i].axis_y = _param_ca_mc_r0_ay.get();
-			_rotor_params[i].axis_z = _param_ca_mc_r0_az.get();
 			_rotor_params[i].CQ0 = _param_ca_rot0_CQ0.get();
 			_rotor_params[i].CQ1 = _param_ca_rot0_CQ1.get();
 			_rotor_params[i].CQ2 = _param_ca_rot0_CQ2.get();
@@ -71,12 +65,37 @@ public:
 			_rotor_params[i].V_max = _param_ca_rot0_vmax.get();
 		}
 
-		_rotor_params[4].position_x = _param_ca_mc_r1_px.get();
-		_rotor_params[4].position_y = _param_ca_mc_r1_py.get();
-		_rotor_params[4].position_z = _param_ca_mc_r1_pz.get();
-		_rotor_params[4].axis_x = _param_ca_mc_r1_ax.get();
-		_rotor_params[4].axis_y = _param_ca_mc_r1_ay.get();
-		_rotor_params[4].axis_z = _param_ca_mc_r1_az.get();
+		_rotor_params[0].position_x = _param_ca_mc_r0_px.get();
+		_rotor_params[0].position_y = _param_ca_mc_r0_py.get();
+		_rotor_params[0].position_z = _param_ca_mc_r0_pz.get();
+		_rotor_params[0].axis_x = _param_ca_mc_r0_ax.get();
+		_rotor_params[0].axis_y = _param_ca_mc_r0_ay.get();
+		_rotor_params[0].axis_z = _param_ca_mc_r0_az.get();
+		_rotor_params[1].position_x = _param_ca_mc_r1_px.get();
+		_rotor_params[1].position_y = _param_ca_mc_r1_py.get();
+		_rotor_params[1].position_z = _param_ca_mc_r1_pz.get();
+		_rotor_params[1].axis_x = _param_ca_mc_r1_ax.get();
+		_rotor_params[1].axis_y = _param_ca_mc_r1_ay.get();
+		_rotor_params[1].axis_z = _param_ca_mc_r1_az.get();
+		_rotor_params[2].position_x = _param_ca_mc_r2_px.get();
+		_rotor_params[2].position_y = _param_ca_mc_r2_py.get();
+		_rotor_params[2].position_z = _param_ca_mc_r2_pz.get();
+		_rotor_params[2].axis_x = _param_ca_mc_r2_ax.get();
+		_rotor_params[2].axis_y = _param_ca_mc_r2_ay.get();
+		_rotor_params[2].axis_z = _param_ca_mc_r2_az.get();
+		_rotor_params[3].position_x = _param_ca_mc_r3_px.get();
+		_rotor_params[3].position_y = _param_ca_mc_r3_py.get();
+		_rotor_params[3].position_z = _param_ca_mc_r3_pz.get();
+		_rotor_params[3].axis_x = _param_ca_mc_r3_ax.get();
+		_rotor_params[3].axis_y = _param_ca_mc_r3_ay.get();
+		_rotor_params[3].axis_z = _param_ca_mc_r3_az.get();
+
+		_rotor_params[4].position_x = _param_ca_mc_r4_px.get();
+		_rotor_params[4].position_y = _param_ca_mc_r4_py.get();
+		_rotor_params[4].position_z = _param_ca_mc_r4_pz.get();
+		_rotor_params[4].axis_x = _param_ca_mc_r4_ax.get();
+		_rotor_params[4].axis_y = _param_ca_mc_r4_ay.get();
+		_rotor_params[4].axis_z = _param_ca_mc_r4_az.get();
 		_rotor_params[4].CQ0 = _param_ca_rot1_CQ0.get();
 		_rotor_params[4].CQ1 = _param_ca_rot1_CQ1.get();
 		_rotor_params[4].CQ2 = _param_ca_rot1_CQ2.get();
@@ -96,7 +115,7 @@ public:
 	matrix::Vector<float, VTOL_NUM_ACTUATORS>
 	getSolutionFromActuatorSp(matrix::Vector<float, 16> &actuator_sp);
 
-	matrix::Vector<float, VTOL_NUM_ACTUATORS>
+	matrix::Vector<float, 16>
 	getActuatorSpFromSolution(matrix::Vector<float, VTOL_NUM_ACTUATORS> &solution);
 
 	void calcThrustTorqueAchieved(
@@ -125,6 +144,8 @@ protected:
     		float *thrust, float *torque, float *thrustDer, float *torqueDer,
     		matrix::Vector2f elevonForceCoefs, matrix::Vector<float, VTOL_NUM_ACTUATORS> x, float Gamma);
 
+	NonlinearEffectiveness_RotorParams _rotor_params[5];
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::CA_MC_R0_PX>) _param_ca_mc_r0_px,
 		(ParamFloat<px4::params::CA_MC_R0_PY>) _param_ca_mc_r0_py,
@@ -139,6 +160,27 @@ protected:
 		(ParamFloat<px4::params::CA_MC_R1_AX>) _param_ca_mc_r1_ax,
 		(ParamFloat<px4::params::CA_MC_R1_AY>) _param_ca_mc_r1_ay,
 		(ParamFloat<px4::params::CA_MC_R1_AZ>) _param_ca_mc_r1_az,
+
+		(ParamFloat<px4::params::CA_MC_R2_PX>) _param_ca_mc_r2_px,
+		(ParamFloat<px4::params::CA_MC_R2_PY>) _param_ca_mc_r2_py,
+		(ParamFloat<px4::params::CA_MC_R2_PZ>) _param_ca_mc_r2_pz,
+		(ParamFloat<px4::params::CA_MC_R2_AX>) _param_ca_mc_r2_ax,
+		(ParamFloat<px4::params::CA_MC_R2_AY>) _param_ca_mc_r2_ay,
+		(ParamFloat<px4::params::CA_MC_R2_AZ>) _param_ca_mc_r2_az,
+
+		(ParamFloat<px4::params::CA_MC_R3_PX>) _param_ca_mc_r3_px,
+		(ParamFloat<px4::params::CA_MC_R3_PY>) _param_ca_mc_r3_py,
+		(ParamFloat<px4::params::CA_MC_R3_PZ>) _param_ca_mc_r3_pz,
+		(ParamFloat<px4::params::CA_MC_R3_AX>) _param_ca_mc_r3_ax,
+		(ParamFloat<px4::params::CA_MC_R3_AY>) _param_ca_mc_r3_ay,
+		(ParamFloat<px4::params::CA_MC_R3_AZ>) _param_ca_mc_r3_az,
+
+		(ParamFloat<px4::params::CA_MC_R4_PX>) _param_ca_mc_r4_px,
+		(ParamFloat<px4::params::CA_MC_R4_PY>) _param_ca_mc_r4_py,
+		(ParamFloat<px4::params::CA_MC_R4_PZ>) _param_ca_mc_r4_pz,
+		(ParamFloat<px4::params::CA_MC_R4_AX>) _param_ca_mc_r4_ax,
+		(ParamFloat<px4::params::CA_MC_R4_AY>) _param_ca_mc_r4_ay,
+		(ParamFloat<px4::params::CA_MC_R4_AZ>) _param_ca_mc_r4_az,
 
 		(ParamFloat<px4::params::CA_WING_AREA>) _param_ca_wing_area,
 		(ParamFloat<px4::params::CA_CHORD_LEN>) _param_ca_chord_len,

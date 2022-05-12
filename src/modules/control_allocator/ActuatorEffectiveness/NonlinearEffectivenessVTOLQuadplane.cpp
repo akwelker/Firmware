@@ -56,7 +56,7 @@ NonlinearEffectivenessVTOLQuadplane::getSolutionFromActuatorSp(
 	matrix::Vector<float, 16> &actuator_sp)
 {
 	matrix::Vector<float, VTOL_NUM_ACTUATORS> solution;
-	float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
+	// float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
 
 
 	solution(0) = actuator_sp(0);
@@ -64,19 +64,19 @@ NonlinearEffectivenessVTOLQuadplane::getSolutionFromActuatorSp(
 	solution(2) = actuator_sp(2);
 	solution(3) = actuator_sp(3);
 	solution(4) = actuator_sp(4);
-	solution(5) = -actuator_sp(6) * elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
-	solution(6) = actuator_sp(7) * elevonMax;
+	solution(5) = -actuator_sp(6);// * elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
+	solution(6) = actuator_sp(7);// * elevonMax;
     solution(7) = 0.f; // empty
 
     return solution;
 }
 
-matrix::Vector<float, VTOL_NUM_ACTUATORS>
+matrix::Vector<float, 16>
 NonlinearEffectivenessVTOLQuadplane::getActuatorSpFromSolution(
 	matrix::Vector<float, VTOL_NUM_ACTUATORS> &solution)
 {
-	matrix::Vector<float, VTOL_NUM_ACTUATORS> actuator_sp;
-	float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
+	matrix::Vector<float, 16> actuator_sp;
+	// float elevonMax = _param_ca_surf0_max_ang.get() * (float) M_PI / 180.f;
 
 	actuator_sp(0) = solution(0);
 	actuator_sp(1) = solution(1);
@@ -84,8 +84,8 @@ NonlinearEffectivenessVTOLQuadplane::getActuatorSpFromSolution(
 	actuator_sp(3) = solution(3);
 	actuator_sp(4) = solution(4);
 	actuator_sp(5) = 0.f;
-	actuator_sp(6) = -solution(5) / elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
-	actuator_sp(7) = solution(6) / elevonMax;
+	actuator_sp(6) = -solution(5);// / elevonMax; // positive right elevon value makes elevon go up. Needs to be negated
+	actuator_sp(7) = solution(6); // elevonMax;
 
     return actuator_sp;
 }
@@ -130,14 +130,14 @@ NonlinearEffectivenessVTOLQuadplane::calcThrustTorqueAchieved(
     }
 	Va[4] = (matrix::Vector3f(1.0, 0.0, 0.0).transpose() * vBody)(0, 0);
 
-    float thrustTorqueDers[5][4];
+    float thrustTorqueDers[4];
     float thrust[5];
     float torque[5];
 
     for (uint8_t i = 0; i < 5; ++i) {
-        rotorThrustTorque(thrustTorqueDers[i], x(i), Va[i], airDensity, _rotor_params[i]);
-        thrust[i] = thrustTorqueDers[i][0];
-        torque[i] = thrustTorqueDers[i][1];
+        rotorThrustTorque(thrustTorqueDers, x(i), Va[i], airDensity, _rotor_params[i]);
+        thrust[i] = thrustTorqueDers[0];
+        torque[i] = thrustTorqueDers[1];
     }
 
     NonlinearEffectiveness_ControlAllocationData controlAllocationData;
@@ -225,20 +225,22 @@ NonlinearEffectivenessVTOLQuadplane::calcThrustTorqueAchieved(
     float T_z = -(thrust[0] + thrust[1] + thrust[2] + thrust[3]) +
         elevonForceCoefs(1) * (x(CA_ELEVON_RIGHT) + x(CA_ELEVON_LEFT));
 
-    float Tau_x = - torque[4]
+    float Tau_x = - _rotor_params[0].position_y * thrust[0]
+                  - _rotor_params[1].position_y * thrust[1]
+                  - _rotor_params[2].position_y * thrust[2]
+                  - _rotor_params[3].position_y * thrust[3]
+                  - torque[4]
                   - Gamma * _param_ca_span.get() * _param_ca_C_ell_delta_a.get() * x(CA_ELEVON_RIGHT)
                   + Gamma * _param_ca_span.get() * _param_ca_C_ell_delta_a.get() * x(CA_ELEVON_LEFT);
-    for (uint8_t i = 0; i < 4; i++) {
-        Tau_x -= _rotor_params[i].position_y * thrust[i];
-    }
 
-    float Tau_y = Gamma * _param_ca_chord_len.get() * _param_ca_C_m_delta_e.get() * x(CA_ELEVON_RIGHT) +
+    float Tau_y = _rotor_params[0].position_x * thrust[0] +
+                  _rotor_params[1].position_x * thrust[1] +
+                  _rotor_params[2].position_x * thrust[2] +
+                  _rotor_params[3].position_x * thrust[3] +
+                  Gamma * _param_ca_chord_len.get() * _param_ca_C_m_delta_e.get() * x(CA_ELEVON_RIGHT) +
                   Gamma * _param_ca_chord_len.get() * _param_ca_C_m_delta_e.get() * x(CA_ELEVON_LEFT);
-    for (uint8_t i = 0; i < 4; i++) {
-        Tau_x += _rotor_params[i].position_x * thrust[i];
-    }
 
-    float Tau_z = - torque[0] + torque[1] + torque[2] - torque[3];
+    float Tau_z = torque[0] - torque[1] - torque[2] + torque[3];
 
     (*thrustTorqueAchieved)(0) = T_x;
     (*thrustTorqueAchieved)(1) = T_z;
@@ -291,10 +293,10 @@ NonlinearEffectivenessVTOLQuadplane::calcThrustTorqueAchievedDer(
     Tau_y_der(5) = Gamma * _param_ca_chord_len.get() * _param_ca_C_m_delta_e.get();
     Tau_y_der(6) = Gamma * _param_ca_chord_len.get() * _param_ca_C_m_delta_e.get();
 
-    Tau_z_der(0) = -torqueDer[0];
-    Tau_z_der(1) = torqueDer[1];
-    Tau_z_der(2) = torqueDer[2];
-    Tau_z_der(3) = -torqueDer[3];
+    Tau_z_der(0) = torqueDer[0];
+    Tau_z_der(1) = -torqueDer[1];
+    Tau_z_der(2) = -torqueDer[2];
+    Tau_z_der(3) = torqueDer[3];
     Tau_z_der(4) = 0.f;
     Tau_z_der(5) = 0.f;
     Tau_z_der(6) = 0.f;
